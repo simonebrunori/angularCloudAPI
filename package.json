@@ -15,5 +15,16 @@
   "bugs": {
     "url": "https://github.com/simonebrunori/angularCloudAPI/issues"
   },
-  "homepage": "https://github.com/simonebrunori/angularCloudAPI#readme"
+  "homepage": "https://github.com/simonebrunori/angularCloudAPI#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "crypto": "^1.0.1",
+    "express": "^4.16.3",
+    "http": "0.0.0",
+    "jsonwebtoken": "^8.2.0",
+    "morgan": "^1.9.0",
+    "mysql": "^2.15.0",
+    "nodemon": "^1.17.2"
+  }
 }
