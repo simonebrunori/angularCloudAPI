@@ -149,9 +149,9 @@ let validType=(type)=>{
   }else{
     //check if the type is correct (must be s or t)
     if(type.localeCompare('S')==0 || type.localeCompare('T')==0){
-      return true;  //return error
+      return true;  //Return type as valid
     }else{
-      return false;  //Return type as valid
+      return false;  //return error
     }
   }
 }
