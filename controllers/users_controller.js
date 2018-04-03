@@ -1,86 +1,133 @@
 const db = require('../config/db');
-const jwt= require('jsonwebtoken');
-const crypto = require('crypto').randomBytes(256).toString('hex');
-// const bcrypt = require('bcrypt-nodejs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/users_model'); // Import User Model Schema
 
 
 module.exports = (router) => {
 
     /*
-    *   406: Not Acceptable | La risorsa richiesta è solo in grado di generare contenuti non accettabili secondo la header Accept inviato nella richiesta
-    *   301: 
-    *   200: OK | Risposta standard per le richieste HTTP andate a buon fine.
-    *   500: Internal Server Error | Errore generico
-    *   404: Not Found | Non è stato possibile trovare quanto richiesto
-    */
+     *   406: Not Acceptable | La risorsa richiesta è solo in grado di generare contenuti non accettabili secondo la header Accept inviato nella richiesta
+     *   301: 
+     *   200: OK | Risposta standard per le richieste HTTP andate a buon fine.
+     *   500: Internal Server Error | Errore generico
+     *   404: Not Found | Non è stato possibile trovare quanto richiesto
+     */
 
-
-     /* ========
-  LOGIN ROUTE
-  ======== */
-
-    router.post('/login', (req, res) => {
-
-        if (!req.body.username) {
-            res.status(406).json({
-                status: "false",
-                count: 0,
-                data: "No username was provided"
-            });
+    /* ==============
+     Register Route
+  ============== */
+    router.post('/register', (req, res) => {
+        // Check if email was provided
+        if (!req.body.email) {
+            res.json({
+                success: false,
+                message: 'You must provide an e-mail'
+            }); // Return error
         } else {
-            if (!req.body.password) {
-                res.status(406).json({
-                    status: "false",
-                    count: 0,
-                    data: "No password was provided"
-                });
+            // Check if username was provided
+            if (!req.body.username) {
+                res.json({
+                    success: false,
+                    message: 'You must provide a username'
+                }); // Return error
             } else {
-                var query="SELECT * FROM users where username='"+req.body.username+"'";
-                db.query(query,(error, result)=>{
-                    if(error){
-                        res.status(500).json({
-                            status: "false",
-                            count: 0,
-                            data: error
+                // Check if password was provided
+                if (!req.body.password) {
+                    res.json({
+                        success: false,
+                        message: 'You must provide a password'
+                    }); // Return error
+                } else {
+                    // Check if type was provided
+                    if (!req.body.type) {
+                        res.json({
+                            success: false,
+                            message: 'You must provide a type'
+                        }); // Return error
+                    } else {
+                        // Create new user object and apply user input
+                        let user = new User({
+                            email: req.body.email.toLowerCase(),
+                            username: req.body.username.toLowerCase(),
+                            password: req.body.password,
+                            type: req.body.type.toUpperCase()
                         });
-                    }else{
-                        if(result.length==0)     
-                        {
-                            res.status(301).json({
-                                status: "false",
-                                count: 0,
-                                data: "Invalid username or password"        //scrivo così in modo da non dire se è sbagliata la password o l'username per motivi di sicurezza
-                            });
-                        }else{
-                            const validPassword= result[0].password.localeCompare(req.body.password);
-                            if(validPassword!=0){
-                                res.status(301).json({
-                                    status: "false",
-                                    count: 0,
-                                    data: "Invalid username or password"        //scrivo così in modo da non dire se è sbagliata la password o l'username per motivi di sicurezza
-                                });
-                            }else{
-                                const token= jwt.sign({userId:result.id} , crypto, { expiresIn:'24h' }); //token
-                                res.status(200).json({
-                                    status: "true",
-                                    count: result.length,
-                                    data: {
-                                        token: token,
-                                        user:{
-                                            username: result[0].username,
-                                            type: result[0].type
+                        // Save user to database
+                        user.save((err) => {
+                            // Check if error occured
+                            if (err) {
+                                // Check if error is an error indicating duplicate account
+                                if (err.code === 11000) {
+                                    res.json({
+                                        success: false,
+                                        message: 'Username or e-mail already exists'
+                                    }); // Return error
+                                } else {
+                                    // Check if error is a validation rror
+                                    if (err.errors) {
+                                        // Check if validation error is in the email field
+                                        if (err.errors.email) {
+                                            res.json({
+                                                success: false,
+                                                message: err.errors.email.message
+                                            }); // Return error
+                                        } else {
+                                            // Check if validation error is in the username field
+                                            if (err.errors.username) {
+                                                res.json({
+                                                    success: false,
+                                                    message: err.errors.username.message
+                                                }); // Return error
+                                            } else {
+                                                // Check if validation error is in the password field
+                                                if (err.errors.password) {
+                                                    res.json({
+                                                        success: false,
+                                                        message: err.errors.password.message
+                                                    }); // Return error
+                                                } else {
+                                                    // Check if validation error is in the type field
+                                                    if (err.errors.type) {
+                                                        res.json({
+                                                            success: false,
+                                                            message: err.errors.type.message
+                                                        }); // Return error
+                                                    } else {
+                                                        res.json({
+                                                            success: false,
+                                                            message: err
+                                                        }); // Return any other error not already covered
+                                                    }
+                                                }
+                                            }
                                         }
+                                    } else {
+                                        res.json({
+                                            success: false,
+                                            message: 'Could not save user. Error: ',
+                                            err
+                                        }); // Return error if not related to validation
                                     }
-                                });
-
+                                }
+                            } else {
+                                res.json({
+                                    success: true,
+                                    message: 'Acount registered!'
+                                }); // Return success
                             }
-                        }
-
+                        });
                     }
-                });
+                }
             }
         }
     });
+
+
+    /* ========
+  LOGIN ROUTE
+  ======== */
+
+
 
     return router;
 }

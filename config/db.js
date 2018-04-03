@@ -1,20 +1,8 @@
-const mysql = require('mysql');
+const crypto = require('crypto').randomBytes(256).toString('hex'); // Provides cryptographic functionality (OpenSSL's hash, HMAC, cipher, decipher, sign and verify functions)
 
-const config={
-    host: 'phpmyadmin.cgwmxirlwuuu.eu-west-2.rds.amazonaws.com',
-    port: 3306,
-    user: 'admin',
-    password:'admin123',
-    database: 'AngularCloud'
-};
-
-
-const connection = mysql.createConnection(config);
-connection.connect((err)=> {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log('Connected to database '+ config.database);
-    }
-});
-module.exports = connection;
+// Export config object
+module.exports = {
+  uri: "mongodb://localhost:27017/angularCloud", // Databse URI and database name
+  secret: crypto, // Cryto-created secret
+  db: "angularCloud", // Database name
+}
