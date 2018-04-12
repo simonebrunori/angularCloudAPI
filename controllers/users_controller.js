@@ -159,7 +159,7 @@ module.exports = (router) => {
                                                             // Success, user object founded
                                                             // Create new teacher object and apply user input
                                                             let teacher = new Teacher({
-                                                                user: user._id,
+                                                                userId: user._id,
                                                                 name: req.body.name,
                                                                 surname: req.body.surname,
                                                                 class: req.body.class, //change

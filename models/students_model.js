@@ -131,15 +131,16 @@ const cityValidators = [
 
 
 
-// User Model Definition
-const teacherSchema = new Schema({
+// Student Model Definition
+const studentSchema = new Schema({
   userId: { type: String, required: true, unique: true, lowercase: true },
   name: { type: String, required: true, validate: nameValidators },
   surname: { type: String, required: true, validate: surnameValidators },
+  classId: {type: String, required:true},
   city: {type: String, required:true, validate: cityValidators}
 });
 
 
 
 // Export Module/Schema
-module.exports = mongoose.model('Teachers', teacherSchema);
+module.exports = mongoose.model('Students', studentSchema);
