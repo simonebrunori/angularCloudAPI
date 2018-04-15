@@ -10,7 +10,6 @@ mongoose.Promise = global.Promise;
 const config = require('./config/db'); // Mongoose Config
 const path = require('path'); // NodeJS Package for file paths
 const users = require('./controllers/users_controller')(router); // Import Users Controller
-const classes = require('./controllers/classes_controller')(router); // Import Classes Controller
 const bodyParser = require('body-parser'); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
 const cors = require('cors'); // CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
 const port = process.env.PORT || 8080; // Allows heroku to set port
@@ -38,7 +37,6 @@ app.use(express.static("C:/Users/Simone/Desktop/frontend")); // Provide static d
 
 
 app.use('/users', users); // Use Users Controller in application
-app.use('/classes', classes); // Use Classes Controller in application
 
 
 
