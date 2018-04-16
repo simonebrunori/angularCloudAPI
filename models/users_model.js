@@ -292,6 +292,89 @@ const cityValidators = [
   }
 ];
 
+//Validate function to check year range
+let yearRangeChecker = (year) => {
+  //Check if year exists
+  if(!year){
+    return false; //return error
+  }else{
+    if(year <1 || year>5){
+      return false;     //return error
+    }else{
+      return true;    //return year as valid
+    }
+  }
+}
+
+
+//Validate function to check if year is a number
+let validYear = (year) => {
+  //Check if year exists
+  if(!year){
+    return false; //return error
+  }else{
+    // Regular Expression to test if year is valid format
+    const regExp = new RegExp(/^([0-9])\w+/);
+    return regExp.test(year); // Return regular expression test result (true or false)
+  }
+}
+
+// Array of year validators
+const yearValidators = [
+  // First year validator
+  {
+    validator: yearRangeChecker,
+    message: 'Year must be a number between 1 and 5'
+  },
+  // Second year validator
+  {
+    validator: validYear,
+    message: 'Year must be a number'
+  }
+];
+
+
+//Validate function to check section length
+let sectionLengthChecker = (section) => {
+  //Check if section exists
+  if(!section){
+    return false; //return error
+  }else{
+    if(section.length!=1){
+      return false;     //return error
+    }else{
+      return true;    //return section as valid
+    }
+  }
+}
+
+
+//Validate function to check if section is valid
+let validSection = (section) => {
+  //Check if section exists
+  if(!section){
+    return false; //return error
+  }else{
+    // Regular Expression to test if section is valid format
+    const regExp = new RegExp(/^([A-Z])\w+/);
+    return regExp.test(section); // Return regular expression test result (true or false)
+  }
+}
+
+// Array of section validators
+const sectionValidators = [
+  // First section validator
+  {
+    validator: sectionLengthChecker,
+    message: 'Section must be only one charachter'
+  },
+  // Second section validator
+  {
+    validator: validSection,
+    message: 'Section must be a charachter between A and Z'
+  }
+];
+
 
 // User Model Definition
 const userSchema = new Schema({
@@ -301,7 +384,9 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true, lowercase: true, validate: emailValidators },
   username: { type: String, required: true, unique: true, lowercase: true, validate: usernameValidators },
   password: { type: String, required: true, validate: passwordValidators },
-  type: {type: String, required:true, uppercase:true, validate: typeValidators}
+  type: {type: String, required:true, uppercase:true, validate: typeValidators},
+  clas: { year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}}
+
 });
 
 // Schema Middleware to Encrypt Password
