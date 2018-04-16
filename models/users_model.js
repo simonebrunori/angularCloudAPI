@@ -385,7 +385,10 @@ const userSchema = new Schema({
   username: { type: String, required: true, unique: true, lowercase: true, validate: usernameValidators },
   password: { type: String, required: true, validate: passwordValidators },
   type: {type: String, required:true, uppercase:true, validate: typeValidators},
-  clas: { year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}}
+  clas: { year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}},  //for students
+  classes:[   //for teachers
+    {year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}} 
+  ]
 
 });
 

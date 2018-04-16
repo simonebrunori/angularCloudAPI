@@ -141,6 +141,30 @@ module.exports = (router) => {
     });
 
 
+    /* ===============================================================
+        Route to get teacher's classes 
+     =============================================================== */
+
+     router.get("/myClasses",(req,res)=>{
+         // Check if teacher's id is found in database
+
+         User.find({ _id: req.decoded.userId}).select('classes').exec((err, classes) => {
+            // Check if the id is a valid ID
+            if (err) {
+              res.json({ success: false, message: 'Not a valid user id' }); // Return error message
+            } else {
+              // Check if classes were found by id
+              if (!classes) {
+                res.json({ success: false, message: 'No classes founded.' }); // Return error message
+              } else {
+                res.json({ success: true, count: classes[0].classes.length, classes});     //return classes array
+              }
+            }
+          })
+
+     });
+
+
 
 
     return router;
