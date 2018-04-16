@@ -14,17 +14,6 @@ module.exports = (router) => {
      */
 
 
-
-     /* ========
-  REGISTER ROUTE
-  ======== */
-
-
-  router.post('/login'), (req, res)=>{
-      
-  }
-
-
     /* ========
   LOGIN ROUTE
   ======== */
