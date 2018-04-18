@@ -165,6 +165,41 @@ module.exports = (router) => {
      });
 
 
+    /* ===============================================================
+        Route to get class' students 
+     =============================================================== */
+
+     router.get("/students/:year/:section",(req,res)=>{
+         //check if year exists
+         if(!req.params.year){
+            res.json({ success: false, message: 'No class was provided'});     //return error message
+         }else{
+             //check if section exists
+             if(!req.params.section){
+                res.json({ success: false, message: 'No section was provided'});     //return error message
+             }else{
+                 //check database for students
+                 User.find({"type":"S", "clas.year": req.params.year, "clas.section":req.params.section}).select('name surname').exec((err, students)=>{
+                     //check if there are error
+                     if(err){
+                        res.json({ success: false, message: 'Database execution error'});     //return error message
+                     }else{
+                         //check if students were found in db
+                         if(!students){
+                            res.json({ success: false, message: 'No students were founded'});     //return error message
+                         }else{
+                            res.json({ success: true, students});     //return students array
+                         }
+                     }
+
+                 })
+             }
+         }
+       
+        
+    });
+
+
 
 
     return router;
