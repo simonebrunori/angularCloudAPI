@@ -48,6 +48,41 @@ module.exports = (router) => {
     });
 
 
+
+    /* ===============================================================
+        Route to get folder's files
+     =============================================================== */
+
+     router.get('/files/:folder/:user', (req, res) => {
+        // Search for files in database
+        Folders.find({
+            createdBy: req.params.user,
+            _id: req.params.folder
+        }).select("files").exec((err, file) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                // Check if files were found in database
+                if (!file) {
+                    res.json({
+                        success: false,
+                        message: 'Files not found'
+                    }); // Return error, folders were not found in db
+                } else {
+                    res.json({
+                        success: true,
+                        files:file
+                    }); // Return success, send files object to frontend 
+                }
+            }
+        });
+    });
+
+
     
 
 

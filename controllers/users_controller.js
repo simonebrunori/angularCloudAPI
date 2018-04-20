@@ -69,7 +69,8 @@ module.exports = (router) => {
                                     message: 'Success!',
                                     token: token,
                                     user: {
-                                        username: user.username
+                                        username: user.username,
+                                        type:user.type
                                     }
                                 }); // Return success and token to frontend
                             }
