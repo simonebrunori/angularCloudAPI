@@ -15,6 +15,39 @@ module.exports = (router) => {
      */
 
 
+    /* ===============================================================
+        Route to get user's folders
+     =============================================================== */
+
+     router.get('/Tfolders/:user', (req, res) => {
+        // Search for folder in database
+        Folders.find({
+            createdBy: req.params.user
+        }).select('name createdAt').exec((err, folder) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                // Check if folder was found in database
+                if (!folder) {
+                    res.json({
+                        success: false,
+                        message: 'Folders not found'
+                    }); // Return error, folders were not found in db
+                } else {
+                    res.json({
+                        success: true,
+                        folders: folder
+                    }); // Return success, send folder object to frontend 
+                }
+            }
+        });
+    });
+
+
     
 
 
