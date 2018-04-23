@@ -83,6 +83,74 @@ module.exports = (router) => {
     });
 
 
+
+    /* ===============================================================
+        Route to get file's informations
+     =============================================================== */
+
+     router.get('/fileInfo/:file', (req, res) => {
+        // Search for file in database
+        Folders.findOne({
+            "files.filename": req.params.file
+        },{files:{$elemMatch:{filename: req.params.file}}},(err, file) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                // Check if file was found in database
+                if (!file) {
+                    res.json({
+                        success: false,
+                        message: 'File not found'
+                    }); // Return error, file was not found in db
+                } else {
+                    res.json({
+                        success: true,
+                        file:file
+                    }); // Return success, send file object to frontend 
+                }
+            }
+        });
+    });
+
+
+
+    /* ===============================================================
+        Route to get file's users list
+     =============================================================== */
+
+     router.get('/fileUser/:file', (req, res) => {
+        // Search for users in database
+        Folders.findOne({
+            "files.filename": req.params.file
+        }).select("users").exec((err, users) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                // Check if users were found in database
+                if (!users) {
+                    res.json({
+                        success: false,
+                        message: 'Users not found'
+                    }); // Return error, users were not found in db
+                } else {
+                    res.json({
+                        success: true,
+                        users:users
+                    }); // Return success, send users array to frontend 
+                }
+            }
+        });
+    });
+
+
     
 
 
