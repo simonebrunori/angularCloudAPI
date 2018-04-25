@@ -2,7 +2,7 @@ const crypto = require('crypto').randomBytes(256).toString('hex'); // Provides c
 
 // Export config object
 module.exports = {
-  uri: "mongodb://admin:admin@ds129352.mlab.com:29352/ngcloud", // Databse URI and database name    mongodb://localhost:27017/ncloudlocal         
+  uri: "mongodb://localhost:27017/ncloudlocal", // Databse URI and database name  mongodb://admin:admin@ds129352.mlab.com:29352/ngcloud           
   secret: crypto, // Cryto-created secret
   db: "ngcloud", // Database name
 }
