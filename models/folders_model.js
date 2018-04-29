@@ -68,7 +68,9 @@ const folderSchema = new Schema({
       }
   ] ,
   users:{type:Array, required:true},
-  parent:{type:String}
+  parent:{type:String},
+  folderPath:{type:String},
+  parentName:{type:String}
 
 });
 
