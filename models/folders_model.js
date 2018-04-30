@@ -26,7 +26,7 @@ let validName=(name)=>{
     return false; //return error
   }else{
     // Regular Expression to test if name is valid format
-    const regExp = new RegExp(/[^[\w[\`\'\˜\=\+\#\ˆ\@\$\&\-\_\.\(\)\{\}\;\[\]]/g);
+    const regExp = new RegExp(/^[a-zA-Z0-9_.-]*$/);
     return regExp.test(name); // Return regular expression test result (true or false)
   }
 }
@@ -51,7 +51,7 @@ const nameValidators = [
 
 // Folder Model Definition
 const folderSchema = new Schema({
-  name:{type:String,unique:true, validate:nameValidators},
+  name:{type:String, unique:true},
   createdBy:{type:String},
   createdAt:{type: Date, default: Date.now()},
   clas:{
@@ -60,14 +60,14 @@ const folderSchema = new Schema({
     },
   files:[
       {
-          filename:{type:String, unique:true, required:true},
-          uploadedBy:{type:String, required:true},
+          filename:{type:String, validate:nameValidators},
+          uploadedBy:{type:String},
           uploadedAt:{type:Date, default:Date.now()},
-          path:{type:String, required:true, unique:true},
+          path:{type:String},
           description:{type:String}
       }
   ] ,
-  users:{type:Array, required:true},
+  users:{type:Array},
   parent:{type:String},
   folderPath:{type:String},
   parentName:{type:String}
