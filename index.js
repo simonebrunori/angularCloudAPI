@@ -2,6 +2,7 @@
    Import Node Modules
 =================== */
 // const env = require('./env');
+const multer = require('multer');
 const express = require('express'); // Fast, unopinionated, minimalist web framework for node.
 const app = express(); // Initiate Express Application
 const router = express.Router(); // Creates a new router object.
@@ -26,11 +27,65 @@ mongoose.connect(config.uri, {
   }
 });
 
+
+app.use(function(req, res, next) { //allow cross origin requests
+  res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+  res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
+
 // Middleware
 app.use(cors({ origin: 'http://localhost:4200' })); // Allows cross origin in development only
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(express.static("C:/Users/Simone/Desktop/frontend")); // Provide static directory for frontend      __dirname + '/public'
+
+
+
+/* ===================
+   UPLOAD
+=================== */
+
+
+
+var storage = multer.diskStorage({ //multers disk storage settings
+  destination: function (req, file, cb) {
+      cb(null, './uploads/');
+  },
+  filename: function (req, file, cb) {
+      var datetimestamp = Date.now();
+      cb(null, file.originalname);     //file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]
+  }
+});
+
+var upload = multer({ //multer settings
+              storage: storage
+          }).single('file');
+
+/** API path that will upload the files */
+app.post('/upload', function(req, res) {
+  upload(req,res,function(err){
+      console.log(req.file);
+      if(err){
+           res.json({error_code:1,err_desc:err});
+           return;
+      }
+       res.json({error_code:0,err_desc:null});
+  });
+});
+
+/* ===================
+   DOWNLOAD
+=================== */
+
+app.post('/download', function(req,res,next){
+  filepath = path.join(__dirname,'./uploads') +'\\'+ req.body.filename;
+  res.sendFile(filepath);
+});
+
+
 
 /* ===================
    ROUTES
