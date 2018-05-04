@@ -434,9 +434,91 @@ module.exports = (router) => {
     });
 
 
-    
+    /* ===============================================================
+       ADD NEW FILE
+    =============================================================== */
+    router.post('/uploadfiles', (req, res) => {
+        // Check if filename was provided in request body
+        if (!req.body.filename) {
+            res.json({
+                success: false,
+                message: 'No filename provided'
+            }); // Return error message
+        } else {
+            // Check if path was provided in request body
+            if (!req.body.path) {
+                res.json({
+                    success: false,
+                    message: 'No path was provided'
+                }); // Return error message
+            } else {
+                // Check if folderpath was provided in request body
+                if (!req.body.folderPath) {
+                    res.json({
+                        success: false,
+                        message: 'No folderpath was provided'
+                    }); // Return error message
+                } else {
+                    // Check if uploadedBy was provided in request body
+                    if (!req.body.uploadedBy) {
+                        res.json({
+                            success: false,
+                            message: 'No user was provided'
+                        }); // Return error message
+                    } else {
+                        // Use id to search for blog post in database
+                        Folder.findOne({
+                            folderPath: req.body.folderPath
+                        }, (err, folder) => {
+                            // Check if error was found
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    message: 'Invalid folder path'
+                                }); // Return error message
+                            } else {
+                                // Check if folderPath matched the folderPath of any blog post in the database
+                                if (!folder) {
+                                    res.json({
+                                        success: false,
+                                        message: 'Folder not found.'
+                                    }); // Return error message
+                                } else {
+                                    // Add the new file to the folder's array
+                                    folder.files.push({
+                                        filename:req.body.filename,
+                                        uploadedBy: req.body.uploadedBy,
+                                        path: req.body.path,
+                                        description: req.body.description,
+                                        uploadedAt: Date.now()       
+                                    });
+                                    // Save folder
+                                    folder.save((err) => {
+                                        // Check if error was found
+                                        if (err) {
+                                            res.json({
+                                                success: false,
+                                                message: err
+                                            }); // Return error message
+                                        } else {
+                                            res.json({
+                                                success: true,
+                                                message: 'file saved'
+                                            }); // Return success message
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    });
 
-    
+
+
+
 
 
 

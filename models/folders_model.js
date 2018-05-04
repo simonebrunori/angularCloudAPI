@@ -60,7 +60,7 @@ const folderSchema = new Schema({
     },
   files:[
       {
-          filename:{type:String, validate:nameValidators},
+          filename:{type:String},     //, validate:nameValidators
           uploadedBy:{type:String},
           uploadedAt:{type:Date, default:Date.now()},
           path:{type:String},
