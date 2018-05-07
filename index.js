@@ -81,7 +81,7 @@ app.post('/upload', function(req, res) {
 =================== */
 
 app.post('/download', function(req,res,next){
-  filepath = path.join(__dirname,'./uploads') +'\\'+ req.body.filename;
+  filepath = path.join(__dirname,'./uploads/') + req.body.filename;
   res.sendFile(filepath);
 });
 
