@@ -486,11 +486,11 @@ module.exports = (router) => {
                                 } else {
                                     // Add the new file to the folder's array
                                     folder.files.push({
-                                        filename:req.body.filename,
+                                        filename: req.body.filename,
                                         uploadedBy: req.body.uploadedBy,
                                         path: req.body.path,
                                         description: req.body.description,
-                                        uploadedAt: Date.now()       
+                                        uploadedAt: Date.now()
                                     });
                                     // Save folder
                                     folder.save((err) => {
@@ -516,6 +516,88 @@ module.exports = (router) => {
         }
     });
 
+    /* ===============================================================
+     DELETE ELEMENT
+  =============================================================== */
+    router.delete('/deleteElement/:id', (req, res) => {
+        // Check if ID was provided in parameters
+        if (!req.params.id) {
+            res.json({
+                success: false,
+                message: 'No id provided'
+            }); // Return error message
+        } else {
+            // Check if id is found in database                                         5aec8e4c9d63de1a4879a336
+            Folder.findOne({
+                _id: req.params.id
+            }, (err, folder) => {
+                // Check if error was found
+                if (err) {
+                    res.json({
+                        success: false,
+                        message: err
+                    }); // Return error message
+                } else {
+                    // Check if folder was found in database
+                    if (!folder) {
+                        //Check if id is a file id
+                        Folder.findOne({
+                            "files._id": req.params.id
+                        }, (err, folder) => {
+                            //Check if there are errors
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    message: err
+                                }); // Return error message
+                            } else {
+                                //Check if file was founded in db
+                                if (!folder) {
+                                    res.json({
+                                        success: false,
+                                        message: 'No folder or files founded with specified ID'
+                                    }); // Return error message
+                                } else {
+                                    //Remove file from folder
+                                    Folder.update({ _id: folder._id },{
+                                        $pull: {files:{_id:req.params.id}}
+                                    }, (err) => {
+                                        if (err) {
+                                            res.json({
+                                                success: false,
+                                                message: err
+                                            }); // Return error message
+                                        } else {
+                                            res.json({
+                                                success: true,
+                                                message: 'File deleted!'
+                                            }); // Return success message
+                                        }
+                                    })
+                                }
+                            }
+
+                        });
+                    } else {
+                        // Remove the folder from database
+                        folder.remove((err) => {
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    message: err
+                                }); // Return error message
+                            } else {
+                                res.json({
+                                    success: true,
+                                    message: 'Folder deleted!'
+                                }); // Return success message
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
 
 
 
