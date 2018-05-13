@@ -12,6 +12,7 @@ const config = require('./config/db'); // Mongoose Config
 const path = require('path'); // NodeJS Package for file paths
 const users = require('./controllers/users_controller')(router); // Import Users Controller
 const folders = require('./controllers/folders_controller')(router); // Import Folders Controller
+const mails = require('./controllers/mails_controller')(router); // Import Mails Controller
 const bodyParser = require('body-parser'); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
 const cors = require('cors'); // CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
 const port = process.env.PORT || 8080; // Allows heroku to set port
@@ -94,6 +95,7 @@ app.post('/download', function(req,res,next){
 
 app.use('/users', users); // Use Users Controller in application
 app.use('/folders', folders); // Use Folders Controller in application
+app.use('/mails', mails); // Use Mails Controller in application
 
 
 
