@@ -70,7 +70,7 @@ module.exports = (router) => {
                                     token: token,
                                     user: {
                                         username: user.username,
-                                        type:user.type
+                                        type: user.type
                                     }
                                 }); // Return success and token to frontend
                             }
@@ -146,58 +146,136 @@ module.exports = (router) => {
         Route to get teacher's classes 
      =============================================================== */
 
-     router.get("/myClasses",(req,res)=>{
-         // Check if teacher's id is found in database
+    router.get("/myClasses", (req, res) => {
+        // Check if teacher's id is found in database
 
-         User.find({ _id: req.decoded.userId}).select('classes').exec((err, classes) => {
+        User.find({
+            _id: req.decoded.userId
+        }).select('classes').exec((err, classes) => {
             // Check if the id is a valid ID
             if (err) {
-              res.json({ success: false, message: 'Not a valid user id' }); // Return error message
+                res.json({
+                    success: false,
+                    message: 'Not a valid user id'
+                }); // Return error message
             } else {
-              // Check if classes were found by id
-              if (!classes) {
-                res.json({ success: false, message: 'No classes founded.' }); // Return error message
-              } else {
-                res.json({ success: true, count: classes[0].classes.length, classes});     //return classes array
-              }
+                // Check if classes were found by id
+                if (!classes) {
+                    res.json({
+                        success: false,
+                        message: 'No classes founded.'
+                    }); // Return error message
+                } else {
+                    res.json({
+                        success: true,
+                        count: classes[0].classes.length,
+                        classes
+                    }); //return classes array
+                }
             }
-          })
+        })
 
-     });
+    });
 
 
     /* ===============================================================
         Route to get class' students 
      =============================================================== */
 
-     router.get("/students/:year/:section",(req,res)=>{
-         //check if year exists
-         if(!req.params.year){
-            res.json({ success: false, message: 'No class was provided'});     //return error message
-         }else{
-             //check if section exists
-             if(!req.params.section){
-                res.json({ success: false, message: 'No section was provided'});     //return error message
-             }else{
-                 //check database for students
-                 User.find({"type":"S", "clas.year": req.params.year, "clas.section":req.params.section}).select('name surname').exec((err, students)=>{
-                     //check if there are error
-                     if(err){
-                        res.json({ success: false, message: 'Database execution error'});     //return error message
-                     }else{
-                         //check if students were found in db
-                         if(!students){
-                            res.json({ success: false, message: 'No students were founded'});     //return error message
-                         }else{
-                            res.json({ success: true, students});     //return students array
-                         }
-                     }
+    router.get("/students/:year/:section", (req, res) => {
+        //check if year exists
+        if (!req.params.year) {
+            res.json({
+                success: false,
+                message: 'No class was provided'
+            }); //return error message
+        } else {
+            //check if section exists
+            if (!req.params.section) {
+                res.json({
+                    success: false,
+                    message: 'No section was provided'
+                }); //return error message
+            } else {
+                //check database for students
+                User.find({
+                    "type": "S",
+                    "clas.year": req.params.year,
+                    "clas.section": req.params.section
+                }).select('name surname').exec((err, students) => {
+                    //check if there are error
+                    if (err) {
+                        res.json({
+                            success: false,
+                            message: 'Database execution error'
+                        }); //return error message
+                    } else {
+                        //check if students were found in db
+                        if (!students) {
+                            res.json({
+                                success: false,
+                                message: 'No students were founded'
+                            }); //return error message
+                        } else {
+                            res.json({
+                                success: true,
+                                students
+                            }); //return students array
+                        }
+                    }
 
-                 })
-             }
-         }
-       
-        
+                })
+            }
+        }
+
+
+    });
+
+
+    /* ===============================================================
+        Route to get all users 
+     =============================================================== */
+
+    router.get("/allUsers/:user", (req, res) => {
+        //Check if user exists
+        if (!req.params.user) {
+            res.json({
+                success: false,
+                message: 'Provide an user'
+            }); //return error message
+        } else {
+            //check database for users
+            User.find({
+                username: {
+                    $ne: req.params.user
+                }
+            }).select('name surname').exec((err, users) => {
+                //check if there are error
+                if (err) {
+                    res.json({
+                        success: false,
+                        message: 'Database execution error'
+                    }); //return error message
+                } else {
+                    //check if users were found in db
+                    if (!users) {
+                        res.json({
+                            success: false,
+                            message: 'No users were founded'
+                        }); //return error message
+                    } else {
+                        res.json({
+                            success: true,
+                            users
+                        }); //return users array
+                    }
+                }
+
+            })
+
+
+        }
+
     });
 
 
