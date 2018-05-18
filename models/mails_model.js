@@ -42,14 +42,7 @@ const mailSchema = new Schema({
     writtenBy:{type:String},
     writtenAt:{type: Date, default: Date.now()},
     subject:{type:String, required:true, validate:subjectLengthChecker},
-    body:{type:String, validate:bodyLengthChecker},
-    sendees:[
-      {
-        sendee:{type:String},   //sendee username
-        deleted:{type:Boolean, default:false, required:true},
-        read:{type:Boolean, default:false, required:true},
-      }
-    ]
+    body:{type:String, validate:bodyLengthChecker}
   
   });
   

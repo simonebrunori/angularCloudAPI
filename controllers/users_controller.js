@@ -249,7 +249,7 @@ module.exports = (router) => {
                 username: {
                     $ne: req.params.user
                 }
-            }).select('name surname').exec((err, users) => {
+            }).select('name surname username').exec((err, users) => {
                 //check if there are error
                 if (err) {
                     res.json({

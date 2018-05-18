@@ -41,7 +41,8 @@ app.use(function(req, res, next) { //allow cross origin requests
 app.use(cors({ origin: 'http://localhost:4200' })); // Allows cross origin in development only
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
-app.use(express.static("C:/Users/Simone/Desktop/frontend")); // Provide static directory for frontend      __dirname + '/public'
+//app.use(express.static("C:/Users/Simone/Desktop/frontend")); // Provide static directory for frontend      __dirname + '/public'
+app.use(express.static("/Users/simone/Desktop/frontend"));
 
 
 
@@ -101,7 +102,8 @@ app.use('/mails', mails); // Use Mails Controller in application
 
 // Connect server to Angular 2 Index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join("C:/Users/Simone/Desktop/frontend/dist/index.html"));    //__dirname + '/public/index.html'
+  //res.sendFile(path.join("C:/Users/Simone/Desktop/frontend/dist/index.html"));    //__dirname + '/public/index.html'
+  res.sendFile(path.join("/Users/simone/Desktop/frontend/dist/index.html"));
 });
 
 // Start Server: Listen on port 8080
