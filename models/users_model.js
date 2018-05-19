@@ -388,13 +388,6 @@ const userSchema = new Schema({
   clas: { year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}},  //for students
   classes:[   //for teachers
     {year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}} 
-  ],
-  emails:[
-    {
-      email:{type:String},   //email _id
-      deleted:{type:Boolean, default:false, required:true},
-      read:{type:Boolean, default:false, required:true},
-    }
   ]
 
 });
