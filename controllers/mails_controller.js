@@ -270,6 +270,55 @@ module.exports = (router) => {
 
 
 
+        /* ===============================================================
+            Route to get email for inbox
+         =============================================================== */
+
+
+         router.get('/mailInbox/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if(!req.params.limit){
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                }else{
+                        //Check if email number to skip was provided for pagination
+                        if(!req.params.skip){
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        }else{
+                                Mail.find({'sendees.sendee':req.decoded.userId}).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).exec((err,mails)=>{
+                                        if(err){
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        }else{
+                                                if(!mails){
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                }else{
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+         });
+
+
+
+
 
 
 
