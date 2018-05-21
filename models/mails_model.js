@@ -26,7 +26,7 @@ let bodyLengthChecker=(body)=>{
 if(!body){
   return false; //return error
 }else{
-  if(body.length>2000){
+  if(body.length>20000000){
     return false;     //return error
   }else{
     return true;    //return body as valid
@@ -43,6 +43,7 @@ const mailSchema = new Schema({
     writtenAt:{type: Date, default: Date.now()},
     subject:{type:String, required:true, validate:subjectLengthChecker},
     body:{type:String, validate:bodyLengthChecker},
+    badge:{type:String},
     sendees:[
       {
         sendee:{type:String},   //user _id

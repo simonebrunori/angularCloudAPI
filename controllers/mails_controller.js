@@ -46,7 +46,8 @@ module.exports = (router) => {
                                         var mail = new Mail({
                                                 subject: req.body.subject,
                                                 writtenBy: req.body.writtenBy,
-                                                body: req.body.body
+                                                body: req.body.body,
+                                                badge: req.body.badge
                                         })
 
                                         mail.save((err, Mail) => {
@@ -149,8 +150,8 @@ module.exports = (router) => {
                                                                                 }); // Return error, users were not found in db
                                                                         } else {
 
-                                                                                var sendeeArray=[];
-                                                                                
+                                                                                var sendeeArray = [];
+
                                                                                 users.forEach(element => {
                                                                                         sendeeArray.push({
                                                                                                 sendee: element._id
@@ -233,8 +234,10 @@ module.exports = (router) => {
                                                         }); // Return error, users were not found in db
                                                 } else {
 
-                                                        var Obj={sendee: req.body.sendee};
-                                                        
+                                                        var Obj = {
+                                                                sendee: req.body.sendee
+                                                        };
+
 
                                                         Mail.update({
                                                                 _id: req.params.mailId
@@ -258,7 +261,7 @@ module.exports = (router) => {
                                                         })
 
 
-                                                        
+
 
                                                 }
                                         }
@@ -275,34 +278,36 @@ module.exports = (router) => {
          =============================================================== */
 
 
-         router.get('/mailInbox/:limit/:skip', (req, res) => {
+        router.get('/mailInbox/:limit/:skip', (req, res) => {
                 //Check if email number to get was provided for pagination
-                if(!req.params.limit){
+                if (!req.params.limit) {
                         res.status(206).json({
                                 success: false,
                                 message: 'Provide an email limit number'
                         }); //return error message
-                }else{
+                } else {
                         //Check if email number to skip was provided for pagination
-                        if(!req.params.skip){
+                        if (!req.params.skip) {
                                 res.status(206).json({
                                         success: false,
                                         message: 'Provide an email skip number'
                                 }); //return error message 
-                        }else{
-                                Mail.find({'sendees.sendee':req.decoded.userId}).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).exec((err,mails)=>{
-                                        if(err){
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).exec((err, mails) => {
+                                        if (err) {
                                                 res.status(500).json({
                                                         success: false,
                                                         message: err
                                                 }); // Return error message
-                                        }else{
-                                                if(!mails){
+                                        } else {
+                                                if (!mails) {
                                                         res.status(500).json({
                                                                 success: false,
                                                                 message: 'Mails not funded in db'
                                                         }); // Return error message
-                                                }else{
+                                                } else {
                                                         res.status(200).json({
                                                                 success: true,
                                                                 mails: mails
@@ -314,7 +319,46 @@ module.exports = (router) => {
                         }
                 }
 
-         });
+        });
+
+
+        /* ===============================================================
+           Route to get email content
+        =============================================================== */
+
+
+        router.get('/mail/:id', (req, res) => {
+                //Check if email id was provided
+                if (!req.params.id) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email id'
+                        }); //return error message
+                } else {
+
+                        Mail.findOne({_id: req.params.id}).exec((err, mail) => {
+                                if (err) {
+                                        res.status(500).json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error message
+                                } else {
+                                        if (!mail) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: 'Mail not funded in db'
+                                                }); // Return error message
+                                        } else {
+                                                res.status(200).json({
+                                                        success: true,
+                                                        mail: mail
+                                                }); // Return mails
+                                        }
+                                }
+                        })
+                }
+
+        });
 
 
 
