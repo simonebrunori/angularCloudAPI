@@ -55,6 +55,5 @@ const mailSchema = new Schema({
   
   });
   
-  
   // Export Module/Schema
   module.exports = mongoose.model('Mails', mailSchema);

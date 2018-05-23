@@ -294,8 +294,11 @@ module.exports = (router) => {
                                 }); //return error message 
                         } else {
                                 Mail.find({
-                                        'sendees.sendee': req.decoded.userId
-                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).exec((err, mails) => {
+                                        'sendees.sendee': req.decoded.userId,
+                                        'sendees.deleted': false
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
                                         if (err) {
                                                 res.status(500).json({
                                                         success: false,
@@ -336,7 +339,9 @@ module.exports = (router) => {
                         }); //return error message
                 } else {
 
-                        Mail.findOne({_id: req.params.id}).exec((err, mail) => {
+                        Mail.findOne({
+                                _id: req.params.id
+                        }).exec((err, mail) => {
                                 if (err) {
                                         res.status(500).json({
                                                 success: false,
@@ -356,6 +361,321 @@ module.exports = (router) => {
                                         }
                                 }
                         })
+                }
+
+        });
+
+
+        /* ===============================================================
+            Route to get email for NEW
+         =============================================================== */
+
+
+        router.get('/mailNew/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId,
+                                        'sendees.deleted': false,
+                                        'sendees.read': false
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
+                                        if (err) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        } else {
+                                                if (!mails) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                } else {
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+        });
+
+        /* ===============================================================
+            Route to get email for TRASH
+         =============================================================== */
+
+
+        router.get('/mailTrash/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId,
+                                        'sendees.deleted': true
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
+                                        if (err) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        } else {
+                                                if (!mails) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                } else {
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+        });
+        /* ===============================================================
+            Route to get email for IMPORTANT
+         =============================================================== */
+
+
+        router.get('/mailImportant/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId,
+                                        badge: 'important'
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
+                                        if (err) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        } else {
+                                                if (!mails) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                } else {
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+        });
+        /* ===============================================================
+            Route to get email for COMMUNICATION
+         =============================================================== */
+
+
+        router.get('/mailCommunication/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId,
+                                        badge: 'communication'
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
+                                        if (err) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        } else {
+                                                if (!mails) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                } else {
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+        });
+        /* ===============================================================
+            Route to get email for HOMEWORK
+         =============================================================== */
+
+
+        router.get('/mailHomework/:limit/:skip', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+                                Mail.find({
+                                        'sendees.sendee': req.decoded.userId,
+                                        badge: 'homework'
+                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                        writtenAt: -1
+                                }).exec((err, mails) => {
+                                        if (err) {
+                                                res.status(500).json({
+                                                        success: false,
+                                                        message: err
+                                                }); // Return error message
+                                        } else {
+                                                if (!mails) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: 'Mails not funded in db'
+                                                        }); // Return error message
+                                                } else {
+                                                        res.status(200).json({
+                                                                success: true,
+                                                                mails: mails
+                                                        }); // Return mails
+                                                }
+                                        }
+                                })
+
+                        }
+                }
+
+        });
+
+
+        /* ===============================================================
+            Route to get email for SENT
+         =============================================================== */
+
+
+        router.get('/mailSent/:limit/:skip/:username', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.limit) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email limit number'
+                        }); //return error message
+                } else {
+                        //Check if email number to skip was provided for pagination
+                        if (!req.params.skip) {
+                                res.status(206).json({
+                                        success: false,
+                                        message: 'Provide an email skip number'
+                                }); //return error message 
+                        } else {
+
+                                //Check if username was provided 
+                                if (!req.params.username) {
+                                        res.status(206).json({
+                                                success: false,
+                                                message: 'Provide username'
+                                        }); //return error message 
+                                } else {
+
+                                        Mail.find({
+                                                writtenBy: req.params.username
+                                        }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                                writtenAt: -1
+                                        }).exec((err, mails) => {
+                                                if (err) {
+                                                        res.status(500).json({
+                                                                success: false,
+                                                                message: err
+                                                        }); // Return error message
+                                                } else {
+                                                        if (!mails) {
+                                                                res.status(500).json({
+                                                                        success: false,
+                                                                        message: 'Mails not funded in db'
+                                                                }); // Return error message
+                                                        } else {
+                                                                res.status(200).json({
+                                                                        success: true,
+                                                                        mails: mails
+                                                                }); // Return mails
+                                                        }
+                                                }
+                                        })
+
+                                }
+                        }
                 }
 
         });
