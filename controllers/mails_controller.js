@@ -311,6 +311,7 @@ module.exports = (router) => {
                                                                 message: 'Mails not funded in db'
                                                         }); // Return error message
                                                 } else {
+
                                                         res.status(200).json({
                                                                 success: true,
                                                                 mails: mails
@@ -386,11 +387,7 @@ module.exports = (router) => {
                                         message: 'Provide an email skip number'
                                 }); //return error message 
                         } else {
-                                Mail.find({
-                                        'sendees.sendee': req.decoded.userId,
-                                        'sendees.deleted': false,
-                                        'sendees.read': false
-                                }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                Mail.find({"sendees":{$elemMatch:{$and:[{sendee:req.decoded.userId},{deleted:false},{read:false}]}}}).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
                                         writtenAt: -1
                                 }).exec((err, mails) => {
                                         if (err) {
@@ -676,6 +673,42 @@ module.exports = (router) => {
 
                                 }
                         }
+                }
+
+        });
+
+        /* ===============================================================
+            Route to set email read
+         =============================================================== */
+
+
+        router.get('/mailRead/:mailId', (req, res) => {
+                //Check if email number to get was provided for pagination
+                if (!req.params.mailId) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide an email ID'
+                        }); //return error message
+                } else {
+
+                        Mail.updateOne({
+                                _id: req.params.mailId,
+                                'sendees.sendee': req.decoded.userId
+                        },{$set: {
+                                'sendees.$.read': true
+                            }}).exec((err) => {
+                                if (err) {
+                                        res.status(500).json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error message
+                                } else {
+                                        res.status(200).json({
+                                                success: true,
+                                                message: 'Mail set as read'
+                                        }); // Return success message 
+                                }
+                        })
                 }
 
         });
