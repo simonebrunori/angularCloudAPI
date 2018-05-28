@@ -1065,6 +1065,31 @@ module.exports = (router) => {
         });
 
 
+        /* ===============================================================
+        Get total mails number
+     =============================================================== */
+
+     router.get('/getTotalMailCount', (req, res) => {
+        // Search for folders in database
+        Mail.count().exec((err, mails) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+
+                    res.json({
+                        success: true,
+                        count: mails
+                    }); // Return success
+
+            }
+        });
+    });
+
+
 
 
 

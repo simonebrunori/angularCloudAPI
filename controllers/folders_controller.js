@@ -599,6 +599,33 @@ module.exports = (router) => {
         }
     });
 
+    /* ===============================================================
+        Get total files number
+     =============================================================== */
+
+     router.get('/getFilesCount', (req, res) => {
+        // Search for folders in database
+        Folder.aggregate([
+            { $project: { files: 1 }},
+            { $unwind: "$files" },
+            { $group: { _id: "result", count: { $sum: 1 }}}]).exec((err, files) => {
+            // Check if error connecting
+            if (err) {
+                res.json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+
+                    res.json({
+                        success: true,
+                        count: files
+                    }); // Return success
+
+            }
+        });
+    });
+
 
 
 

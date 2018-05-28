@@ -278,6 +278,75 @@ module.exports = (router) => {
 
     });
 
+    /* ===============================================================
+        Route to get total students number
+     =============================================================== */
+
+     router.get("/studentsCount/", (req, res) => {
+
+            //check database for users
+            User.find({
+                type: 'S'
+            }).count().exec((err, users) => {
+                //check if there are error
+                if (err) {
+                    res.json({
+                        success: false,
+                        message: 'Database execution error'
+                    }); //return error message
+                } else {
+                    //check if users were found in db
+                    if (!users) {
+                        res.json({
+                            success: false,
+                            message: 'No users were founded'
+                        }); //return error message
+                    } else {
+                        res.json({
+                            success: true,
+                            count:users
+                        }); //return users array
+                    }
+                }
+
+            })
+
+    });
+    /* ===============================================================
+        Route to get total teachers number
+     =============================================================== */
+
+     router.get("/teachersCount/", (req, res) => {
+
+        //check database for users
+        User.find({
+            type: 'T'
+        }).count().exec((err, users) => {
+            //check if there are error
+            if (err) {
+                res.json({
+                    success: false,
+                    message: 'Database execution error'
+                }); //return error message
+            } else {
+                //check if users were found in db
+                if (!users) {
+                    res.json({
+                        success: false,
+                        message: 'No users were founded'
+                    }); //return error message
+                } else {
+                    res.json({
+                        success: true,
+                        count:users
+                    }); //return users array
+                }
+            }
+
+        })
+
+});
+
 
 
 
