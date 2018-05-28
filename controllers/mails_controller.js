@@ -734,7 +734,7 @@ module.exports = (router) => {
          =============================================================== */
 
 
-         router.put('/mailDelete', (req, res) => {
+        router.put('/mailDelete', (req, res) => {
                 //Check if email number to get was provided for pagination
                 if (!req.body.mailId) {
                         res.status(206).json({
@@ -764,6 +764,304 @@ module.exports = (router) => {
                                 }
                         })
                 }
+        });
+
+        /* ===============================================================
+            Route to get INBOX email number
+         =============================================================== */
+
+
+        router.get('/mailInboxCount', (req, res) => {
+                Mail.find({
+                        'sendees.sendee': req.decoded.userId,
+                        'sendees.deleted': false
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+        /* ===============================================================
+            Route to get NEW email number
+         =============================================================== */
+
+
+        router.get('/mailNewCount', (req, res) => {
+                Mail.find({
+                        "sendees": {
+                                $elemMatch: {
+                                        $and: [{
+                                                sendee: req.decoded.userId
+                                        }, {
+                                                deleted: false
+                                        }, {
+                                                read: false
+                                        }]
+                                }
+                        }
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+        /* ===============================================================
+            Route to get SENT email number
+         =============================================================== */
+
+
+        router.get('/mailSentCount/:username', (req, res) => {
+                //Check if username was provided 
+                if (!req.params.username) {
+                        res.status(206).json({
+                                success: false,
+                                message: 'Provide username'
+                        }); //return error message 
+                } else {
+                        Mail.find({
+                                writtenBy: req.params.username
+                        }).count().exec((err, nMails) => {
+                                if (err) {
+                                        res.status(500).json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error message
+                                } else {
+                                        res.status(200).json({
+                                                success: true,
+                                                count: nMails
+                                        }); // Return success message 
+                                }
+                        })
+                }
+
+        });
+
+        /* ===============================================================
+            Route to get TRASH email number
+         =============================================================== */
+
+
+        router.get('/mailTrashCount', (req, res) => {
+                Mail.find({
+                        'sendees.sendee': req.decoded.userId,
+                        'sendees.deleted': true
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+        /* ===============================================================
+            Route to get IMPORTANT email number
+         =============================================================== */
+
+
+        router.get('/mailImportantCount', (req, res) => {
+                Mail.find({
+                        'sendees.sendee': req.decoded.userId,
+                        badge: 'important',
+                        'sendees.deleted': false
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+        /* ===============================================================
+            Route to get HOMEWORK email number
+         =============================================================== */
+
+
+        router.get('/mailHomeworkCount', (req, res) => {
+                Mail.find({
+                        'sendees.sendee': req.decoded.userId,
+                        badge: 'homework',
+                        'sendees.deleted': false
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+        /* ===============================================================
+            Route to get COMMUNICATION email number
+         =============================================================== */
+
+
+        router.get('/mailCommunicationCount', (req, res) => {
+                Mail.find({
+                        'sendees.sendee': req.decoded.userId,
+                        badge: 'communication',
+                        'sendees.deleted': false
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+
+        /* ===============================================================
+            Route to get NEW IMPORTANT email number
+         =============================================================== */
+
+
+         router.get('/mailNewImportantCount', (req, res) => {
+                Mail.find({
+                        "sendees": {
+                                $elemMatch: {
+                                        $and: [{
+                                                sendee: req.decoded.userId
+                                        }, {
+                                                deleted: false
+                                        }, {
+                                                read: false
+                                        }]
+                                }
+                        },
+                        badge:"important"
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+         /* ===============================================================
+            Route to get NEW COMMUNICATION email number
+         =============================================================== */
+
+
+         router.get('/mailNewCommunicationCount', (req, res) => {
+                Mail.find({
+                        "sendees": {
+                                $elemMatch: {
+                                        $and: [{
+                                                sendee: req.decoded.userId
+                                        }, {
+                                                deleted: false
+                                        }, {
+                                                read: false
+                                        }]
+                                }
+                        },
+                        badge:"communication"
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
+        });
+
+         /* ===============================================================
+            Route to get NEW HOMEWORK email number
+         =============================================================== */
+
+
+         router.get('/mailNewHomeworkCount', (req, res) => {
+                Mail.find({
+                        "sendees": {
+                                $elemMatch: {
+                                        $and: [{
+                                                sendee: req.decoded.userId
+                                        }, {
+                                                deleted: false
+                                        }, {
+                                                read: false
+                                        }]
+                                }
+                        },
+                        badge:"homework"
+                }).count().exec((err, nMails) => {
+                        if (err) {
+                                res.status(500).json({
+                                        success: false,
+                                        message: err
+                                }); // Return error message
+                        } else {
+                                res.status(200).json({
+                                        success: true,
+                                        count: nMails
+                                }); // Return success message 
+                        }
+                })
+
         });
 
 
