@@ -347,6 +347,113 @@ module.exports = (router) => {
 
 });
 
+/* ===============================================================
+        Route to post new todo
+=============================================================== */
+
+router.put('/addTodo', (req, res) => {
+    // Check if text was provided
+    if (!req.body.text) {
+        res.status(206).json({
+            success: false,
+            message: 'No text was provided'
+        }); // Return error
+    } else {
+
+        var obj={
+            text:req.body.text
+        }
+
+        //update user document
+        User.update(
+            {_id:req.decoded.userId},
+            { $push: { todos: obj } }
+        ).exec((err)=>{
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+                res.status(200).json({
+                    success: false,
+                    message: 'Todo saved!'
+                }); // Return success
+            }
+            
+        })
+    }
+});
+
+/* ===============================================================
+        Route to get user's todo
+=============================================================== */
+
+router.get('/getTodos', (req, res) => {
+
+        User.findOne(
+            {_id:req.decoded.userId}
+        ).select("todos").exec((err, todos)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+                //CHeck if todos were founded
+                if(!todos){
+                    res.status(200).json({
+                        success: false,
+                        message: err
+                        }); // Return error
+                }else{
+                    res.status(200).json({
+                    success: false,
+                    todos 
+                    }); // Return success
+                }
+                
+            }
+            
+        })
+});
+
+/* ===============================================================
+        Route to delete user's todo
+=============================================================== */
+
+router.get('/deleteTodo/:id', (req, res) => {
+
+    if(!req.params.id){
+        res.status(206).json({
+            success: false,
+            message: 'Provide a todo id'
+            }); // Return error
+    }else{
+        User.update(
+            {_id:req.decoded.userId},
+            {$pull:{todos:{_id:req.params.id}}}
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: false,
+                    message: 'Todo removed' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }
+});
+
 
 
 
