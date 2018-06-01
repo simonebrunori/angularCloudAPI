@@ -391,7 +391,8 @@ const userSchema = new Schema({
   ],
   todos:[
     {
-      text:{type:String}
+      text:{type:String},
+      closed: {type: Boolean, required:true, default:false}
     }
   ]
 

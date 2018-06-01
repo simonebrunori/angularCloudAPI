@@ -455,6 +455,92 @@ router.get('/deleteTodo/:id', (req, res) => {
 });
 
 
+/* ===============================================================
+        Route to set as closed user's todo
+=============================================================== */
+
+router.get('/todoClosed/:id', (req, res) => {
+    //CHeck if id was provided
+    if(!req.params.id){
+        res.status(206).json({
+            success: false,
+            message: 'Provide todo s id'
+            }); // Return error
+    }else{
+        User.update(
+            {
+                _id:req.decoded.userId,
+                "todos._id":req.params.id
+            },
+            {
+                $set: {
+                        'todos.$.closed': true
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: false,
+                    message: 'Todo updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }
+});
+
+
+/* ===============================================================
+        Route to set as open user's todo
+=============================================================== */
+
+router.get('/todoOpen/:id', (req, res) => {
+    //CHeck if id was provided
+    if(!req.params.id){
+        res.status(206).json({
+            success: false,
+            message: 'Provide todo s id'
+            }); // Return error
+    }else{
+        User.update(
+            {
+                _id:req.decoded.userId,
+                "todos._id":req.params.id
+            },
+            {
+                $set: {
+                        'todos.$.closed': false
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: false,
+                    message: 'Todo updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }
+});
+
+
 
 
     return router;
