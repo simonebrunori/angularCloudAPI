@@ -394,7 +394,15 @@ const userSchema = new Schema({
       text:{type:String},
       closed: {type: Boolean, required:true, default:false}
     }
-  ]
+  ],
+  gender:{type:String},
+  birthDate:{type:Date},
+  about:{type:String},
+  major:{type:String},
+  subjects:{type:Array},
+  TE:{type:Boolean},
+  TODO:{type:Boolean}
+
 
 });
 

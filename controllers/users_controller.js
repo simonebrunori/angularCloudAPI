@@ -117,7 +117,7 @@ module.exports = (router) => {
         // Search for user in database
         User.findOne({
             _id: req.decoded.userId
-        }).select('username email').exec((err, user) => {
+        }).exec((err, user) => {
             // Check if error connecting
             if (err) {
                 res.json({
