@@ -542,6 +542,137 @@ router.get('/todoOpen/:id', (req, res) => {
 
 
 
+/* ===============================================================
+        Route to set todo status
+=============================================================== */
+
+router.get('/todoStatus/:state', (req, res) => {
+    //CHeck if todo status is true or false
+    if(req.params.state==='false'){
+        User.update(
+            {
+                _id:req.decoded.userId
+            },
+            {
+                $set: {
+                        TODO: true
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: true,
+                    message: 'Todo updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }else{
+        User.update(
+            {
+                _id:req.decoded.userId
+            },
+            {
+                $set: {
+                        TODO: false
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: true,
+                    message: 'Todo updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }
+});
+
+
+
+/* ===============================================================
+        Route to set text editor status
+=============================================================== */
+
+router.get('/teStatus/:state', (req, res) => {
+    //CHeck if text editor status is true or false
+    
+    if(req.params.state==='false'){
+        User.update(
+            {
+                _id:req.decoded.userId
+            },
+            {
+                $set: {
+                        TE: true
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: true,
+                    message: 'TE updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }else{
+        User.update(
+            {
+                _id:req.decoded.userId
+            },
+            {
+                $set: {
+                        TE: false
+                }
+        }
+        ).exec((err)=>{
+            //Check for errors
+            if(err){
+                res.status(500).json({
+                success: false,
+                message: err
+                }); // Return error
+            }else{
+
+                    res.status(200).json({
+                    success: true,
+                    message: 'TE updated' 
+                    }); // Return success
+                
+            }
+            
+        })
+    }
+});
+
+
+
 
     return router;
 }
