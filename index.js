@@ -15,6 +15,9 @@ const folders = require('./controllers/folders_controller')(router); // Import F
 const mails = require('./controllers/mails_controller')(router); // Import Mails Controller
 const bodyParser = require('body-parser'); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
 const cors = require('cors'); // CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
+const fs= require('fs');
+const pdf = require('html-pdf');
+const options = { format: 'Letter' };
 const port = process.env.PORT || 8080; // Allows heroku to set port
 // Database Connection
 mongoose.connect(config.uri, {
@@ -86,6 +89,48 @@ app.post('/download', function(req,res,next){
   filepath = path.join(__dirname,'./uploads/') + req.body.filename;
   res.sendFile(filepath);
 });
+
+/* ===================
+   PDF
+=================== */
+app.post('/pdf', function(req, res) {
+  //check if text was provided
+  if(!req.body.text){
+      res.status(206).json({
+        success:false,
+        message: 'Provide html to convert to pdf'
+      })    //return error
+  }else{
+    //check if filename was provided
+    if(!req.body.filename){
+      res.status(206).json({
+        success:false,
+        message: 'Provide filename'
+      })    //return error
+  }else{
+
+//create pdf file
+    pdf.create(req.body.text, options).toFile('./uploads/'+req.body.filename+'.pdf', function(err) {
+      if(err){
+             res.status(500).json({
+               success:false,
+               message: err
+             })    //return error
+           }else{
+    
+             res.status(200).json({
+               success:true,
+               message: 'PDF Saved!'
+             })    //return error
+        }
+    });
+
+  }
+}
+  
+});
+
+
 
 
 
