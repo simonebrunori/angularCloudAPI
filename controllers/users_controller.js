@@ -671,6 +671,60 @@ router.get('/teStatus/:state', (req, res) => {
     }
 });
 
+/* ===============================================================
+        Route to get all users from database
+     =============================================================== */
+
+     router.get('/getAllUsers', (req, res) => {
+        // Search for user in database
+        User.find().exec((err, users) => {
+            // Check if error connecting
+            if (err) {
+                res.status(500).json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                // Check if user was found in database
+                if (!users) {
+                    res.status(404).json({
+                        success: false,
+                        message: 'Users not found'
+                    }); // Return error, users was not found in db
+                } else {
+                    res.status(200).json({
+                        success: true,
+                        users: users
+                    }); // Return success, send users object to frontend 
+                }
+            }
+        });
+    });
+
+    /* ===============================================================
+     Route to check if user's username is available for registration
+  =============================================================== */
+  router.get('/checkUsername/:username', (req, res) => {
+    // Check if username was provided in paramaters
+    if (!req.params.username) {
+      res.json({ success: false, message: 'Username was not provided' }); // Return error
+    } else {
+      // Look for username in database
+      User.findOne({ username: req.params.username }, (err, user) => { // Check if connection error was found
+        if (err) {
+          res.json({ success: false, message: err }); // Return connection error
+        } else {
+          // Check if user's username was found
+          if (user) {
+            res.json({ success: false, message: 'Username is already taken' }); // Return as taken username
+          } else {
+            res.json({ success: true, message: 'Username is available' }); // Return as vailable username
+          }
+        }
+      });
+    }
+  });
+
 
 
 
