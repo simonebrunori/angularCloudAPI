@@ -117,7 +117,7 @@ module.exports = (router) => {
         // Search for user in database
         User.findOne({
             _id: req.decoded.userId
-        }).exec((err, user) => {
+        }).select('-password').exec((err, user) => {
             // Check if error connecting
             if (err) {
                 res.json({
@@ -282,41 +282,41 @@ module.exports = (router) => {
         Route to get total students number
      =============================================================== */
 
-     router.get("/studentsCount/", (req, res) => {
+    router.get("/studentsCount/", (req, res) => {
 
-            //check database for users
-            User.find({
-                type: 'S'
-            }).count().exec((err, users) => {
-                //check if there are error
-                if (err) {
+        //check database for users
+        User.find({
+            type: 'S'
+        }).count().exec((err, users) => {
+            //check if there are error
+            if (err) {
+                res.json({
+                    success: false,
+                    message: 'Database execution error'
+                }); //return error message
+            } else {
+                //check if users were found in db
+                if (!users) {
                     res.json({
                         success: false,
-                        message: 'Database execution error'
+                        message: 'No users were founded'
                     }); //return error message
                 } else {
-                    //check if users were found in db
-                    if (!users) {
-                        res.json({
-                            success: false,
-                            message: 'No users were founded'
-                        }); //return error message
-                    } else {
-                        res.json({
-                            success: true,
-                            count:users
-                        }); //return users array
-                    }
+                    res.json({
+                        success: true,
+                        count: users
+                    }); //return users array
                 }
+            }
 
-            })
+        })
 
     });
     /* ===============================================================
         Route to get total teachers number
      =============================================================== */
 
-     router.get("/teachersCount/", (req, res) => {
+    router.get("/teachersCount/", (req, res) => {
 
         //check database for users
         User.find({
@@ -338,346 +338,336 @@ module.exports = (router) => {
                 } else {
                     res.json({
                         success: true,
-                        count:users
+                        count: users
                     }); //return users array
                 }
             }
 
         })
 
-});
+    });
 
-/* ===============================================================
-        Route to post new todo
-=============================================================== */
+    /* ===============================================================
+            Route to post new todo
+    =============================================================== */
 
-router.put('/addTodo', (req, res) => {
-    // Check if text was provided
-    if (!req.body.text) {
-        res.status(206).json({
-            success: false,
-            message: 'No text was provided'
-        }); // Return error
-    } else {
-
-        var obj={
-            text:req.body.text
-        }
-
-        //update user document
-        User.update(
-            {_id:req.decoded.userId},
-            { $push: { todos: obj } }
-        ).exec((err)=>{
-            if(err){
-                res.status(500).json({
+    router.put('/addTodo', (req, res) => {
+        // Check if text was provided
+        if (!req.body.text) {
+            res.status(206).json({
                 success: false,
-                message: err
-                }); // Return error
-            }else{
-                res.status(200).json({
-                    success: false,
-                    message: 'Todo saved!'
-                }); // Return success
+                message: 'No text was provided'
+            }); // Return error
+        } else {
+
+            var obj = {
+                text: req.body.text
             }
-            
-        })
-    }
-});
 
-/* ===============================================================
-        Route to get user's todo
-=============================================================== */
+            //update user document
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $push: {
+                    todos: obj
+                }
+            }).exec((err) => {
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
+                    res.status(200).json({
+                        success: false,
+                        message: 'Todo saved!'
+                    }); // Return success
+                }
 
-router.get('/getTodos', (req, res) => {
+            })
+        }
+    });
 
-        User.findOne(
-            {_id:req.decoded.userId}
-        ).select("todos").exec((err, todos)=>{
+    /* ===============================================================
+            Route to get user's todo
+    =============================================================== */
+
+    router.get('/getTodos', (req, res) => {
+
+        User.findOne({
+            _id: req.decoded.userId
+        }).select("todos").exec((err, todos) => {
             //Check for errors
-            if(err){
+            if (err) {
                 res.status(500).json({
-                success: false,
-                message: err
+                    success: false,
+                    message: err
                 }); // Return error
-            }else{
+            } else {
                 //CHeck if todos were founded
-                if(!todos){
+                if (!todos) {
                     res.status(200).json({
                         success: false,
                         message: err
-                        }); // Return error
-                }else{
+                    }); // Return error
+                } else {
                     res.status(200).json({
-                    success: false,
-                    todos 
+                        success: false,
+                        todos
                     }); // Return success
                 }
-                
+
             }
-            
+
         })
-});
+    });
 
-/* ===============================================================
-        Route to delete user's todo
-=============================================================== */
+    /* ===============================================================
+            Route to delete user's todo
+    =============================================================== */
 
-router.get('/deleteTodo/:id', (req, res) => {
+    router.get('/deleteTodo/:id', (req, res) => {
 
-    if(!req.params.id){
-        res.status(206).json({
-            success: false,
-            message: 'Provide a todo id'
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide a todo id'
             }); // Return error
-    }else{
-        User.update(
-            {_id:req.decoded.userId},
-            {$pull:{todos:{_id:req.params.id}}}
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+        } else {
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $pull: {
+                    todos: {
+                        _id: req.params.id
+                    }
+                }
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: false,
-                    message: 'Todo removed' 
+                        success: false,
+                        message: 'Todo removed'
                     }); // Return success
-                
-            }
-            
-        })
-    }
-});
+
+                }
+
+            })
+        }
+    });
 
 
-/* ===============================================================
-        Route to set as closed user's todo
-=============================================================== */
+    /* ===============================================================
+            Route to set as closed user's todo
+    =============================================================== */
 
-router.get('/todoClosed/:id', (req, res) => {
-    //CHeck if id was provided
-    if(!req.params.id){
-        res.status(206).json({
-            success: false,
-            message: 'Provide todo s id'
+    router.get('/todoClosed/:id', (req, res) => {
+        //CHeck if id was provided
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide todo s id'
             }); // Return error
-    }else{
-        User.update(
-            {
-                _id:req.decoded.userId,
-                "todos._id":req.params.id
-            },
-            {
+        } else {
+            User.update({
+                _id: req.decoded.userId,
+                "todos._id": req.params.id
+            }, {
                 $set: {
-                        'todos.$.closed': true
+                    'todos.$.closed': true
                 }
-        }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: false,
-                    message: 'Todo updated' 
+                        success: false,
+                        message: 'Todo updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }
-});
+
+                }
+
+            })
+        }
+    });
 
 
-/* ===============================================================
-        Route to set as open user's todo
-=============================================================== */
+    /* ===============================================================
+            Route to set as open user's todo
+    =============================================================== */
 
-router.get('/todoOpen/:id', (req, res) => {
-    //CHeck if id was provided
-    if(!req.params.id){
-        res.status(206).json({
-            success: false,
-            message: 'Provide todo s id'
+    router.get('/todoOpen/:id', (req, res) => {
+        //CHeck if id was provided
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide todo s id'
             }); // Return error
-    }else{
-        User.update(
-            {
-                _id:req.decoded.userId,
-                "todos._id":req.params.id
-            },
-            {
+        } else {
+            User.update({
+                _id: req.decoded.userId,
+                "todos._id": req.params.id
+            }, {
                 $set: {
-                        'todos.$.closed': false
+                    'todos.$.closed': false
                 }
-        }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: false,
-                    message: 'Todo updated' 
+                        success: false,
+                        message: 'Todo updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }
-});
 
-
-
-/* ===============================================================
-        Route to set todo status
-=============================================================== */
-
-router.get('/todoStatus/:state', (req, res) => {
-    //CHeck if todo status is true or false
-    if(req.params.state==='false'){
-        User.update(
-            {
-                _id:req.decoded.userId
-            },
-            {
-                $set: {
-                        TODO: true
                 }
+
+            })
         }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+    });
+
+
+
+    /* ===============================================================
+            Route to set todo status
+    =============================================================== */
+
+    router.get('/todoStatus/:state', (req, res) => {
+        //CHeck if todo status is true or false
+        if (req.params.state === 'false') {
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $set: {
+                    TODO: true
+                }
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: true,
-                    message: 'Todo updated' 
+                        success: true,
+                        message: 'Todo updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }else{
-        User.update(
-            {
-                _id:req.decoded.userId
-            },
-            {
-                $set: {
-                        TODO: false
+
                 }
-        }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+
+            })
+        } else {
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $set: {
+                    TODO: false
+                }
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: true,
-                    message: 'Todo updated' 
+                        success: true,
+                        message: 'Todo updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }
-});
 
-
-
-/* ===============================================================
-        Route to set text editor status
-=============================================================== */
-
-router.get('/teStatus/:state', (req, res) => {
-    //CHeck if text editor status is true or false
-    
-    if(req.params.state==='false'){
-        User.update(
-            {
-                _id:req.decoded.userId
-            },
-            {
-                $set: {
-                        TE: true
                 }
+
+            })
         }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+    });
+
+
+
+    /* ===============================================================
+            Route to set text editor status
+    =============================================================== */
+
+    router.get('/teStatus/:state', (req, res) => {
+        //CHeck if text editor status is true or false
+
+        if (req.params.state === 'false') {
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $set: {
+                    TE: true
+                }
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: true,
-                    message: 'TE updated' 
+                        success: true,
+                        message: 'TE updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }else{
-        User.update(
-            {
-                _id:req.decoded.userId
-            },
-            {
-                $set: {
-                        TE: false
+
                 }
-        }
-        ).exec((err)=>{
-            //Check for errors
-            if(err){
-                res.status(500).json({
-                success: false,
-                message: err
-                }); // Return error
-            }else{
+
+            })
+        } else {
+            User.update({
+                _id: req.decoded.userId
+            }, {
+                $set: {
+                    TE: false
+                }
+            }).exec((err) => {
+                //Check for errors
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
 
                     res.status(200).json({
-                    success: true,
-                    message: 'TE updated' 
+                        success: true,
+                        message: 'TE updated'
                     }); // Return success
-                
-            }
-            
-        })
-    }
-});
 
-/* ===============================================================
-        Route to get all users from database
-     =============================================================== */
+                }
 
-     router.get('/getAllUsers', (req, res) => {
+            })
+        }
+    });
+
+    /* ===============================================================
+            Route to get all users from database
+         =============================================================== */
+
+    router.get('/getAllUsers', (req, res) => {
         // Search for user in database
-        User.find().exec((err, users) => {
+        User.find().select('-password').exec((err, users) => {
             // Check if error connecting
             if (err) {
                 res.status(500).json({
@@ -704,26 +694,304 @@ router.get('/teStatus/:state', (req, res) => {
     /* ===============================================================
      Route to check if user's username is available for registration
   =============================================================== */
-  router.get('/checkUsername/:username', (req, res) => {
-    // Check if username was provided in paramaters
-    if (!req.params.username) {
-      res.json({ success: false, message: 'Username was not provided' }); // Return error
-    } else {
-      // Look for username in database
-      User.findOne({ username: req.params.username }, (err, user) => { // Check if connection error was found
-        if (err) {
-          res.json({ success: false, message: err }); // Return connection error
+    router.get('/checkUsername/:username', (req, res) => {
+        // Check if username was provided in paramaters
+        if (!req.params.username) {
+            res.json({
+                success: false,
+                message: 'Username was not provided'
+            }); // Return error
         } else {
-          // Check if user's username was found
-          if (user) {
-            res.json({ success: false, message: 'Username is already taken' }); // Return as taken username
-          } else {
-            res.json({ success: true, message: 'Username is available' }); // Return as vailable username
-          }
+            // Look for username in database
+            User.findOne({
+                username: req.params.username
+            }, (err, user) => { // Check if connection error was found
+                if (err) {
+                    res.json({
+                        success: false,
+                        message: err
+                    }); // Return connection error
+                } else {
+                    // Check if user's username was found
+                    if (user) {
+                        res.json({
+                            success: false,
+                            message: 'Username is already taken'
+                        }); // Return as taken username
+                    } else {
+                        res.json({
+                            success: true,
+                            message: 'Username is available'
+                        }); // Return as vailable username
+                    }
+                }
+            });
         }
-      });
+    });
+
+
+    /* ==============
+     Register Route
+  ============== */
+    router.post('/register', (req, res) => {
+        // Check if email was provided
+        if (!req.body.email) {
+            res.json({
+                success: false,
+                message: 'You must provide an e-mail'
+            }); // Return error
+        } else {
+            // Check if username was provided
+            if (!req.body.username) {
+                res.json({
+                    success: false,
+                    message: 'You must provide a username'
+                }); // Return error
+            } else {
+                // Check if password was provided
+                if (!req.body.password) {
+                    res.json({
+                        success: false,
+                        message: 'You must provide a password'
+                    }); // Return error
+                } else {
+                    // Check if type was provided
+                    if (!req.body.type) {
+                        res.json({
+                            success: false,
+                            message: 'You must provide a type'
+                        }); // Return error
+                    } else {
+                        // Check if name was provided
+                        if (!req.body.name) {
+                            res.json({
+                                success: false,
+                                message: 'You must provide a name'
+                            }); // Return error
+                        } else {
+                            // Check if surname was provided
+                            if (!req.body.surname) {
+                                res.json({
+                                    success: false,
+                                    message: 'You must provide a surname'
+                                }); // Return error
+                            } else {
+                                // Check if city was provided
+                                if (!req.body.city) {
+                                    res.json({
+                                        success: false,
+                                        message: 'You must provide a city'
+                                    }); // Return error
+                                } else {
+                                    // Check if birthDate was provided
+                                    if (!req.body.birthDate) {
+                                        res.json({
+                                            success: false,
+                                            message: 'You must provide a birthdate'
+                                        }); // Return error
+                                    } else {
+                                        // Check if gender was provided
+                                        if (!req.body.gender) {
+                                            res.json({
+                                                success: false,
+                                                message: 'You must provide a gender'
+                                            }); // Return error
+                                        } else {
+                                            // Check if major was provided
+                                            if (!req.body.major) {
+                                                res.json({
+                                                    success: false,
+                                                    message: 'You must provide a major'
+                                                }); // Return error
+                                            } else {
+                                                // Create new user object and apply user input
+                                                let user = new User({
+                                                    type: req.body.type,
+                                                    name: req.body.name,
+                                                    surname: req.body.surname,
+                                                    city: req.body.city,
+                                                    gender: req.body.gender,
+                                                    birthDate: req.body.birthDate,
+                                                    major: req.body.major,
+                                                    email: req.body.email.toLowerCase(),
+                                                    username: req.body.username.toLowerCase(),
+                                                    password: req.body.password
+                                                });
+                                                // Save user to database
+                                                user.save((err) => {
+                                                    // Check if error occured
+                                                    if (err) {
+                                                        // Check if error is an error indicating duplicate account
+                                                        if (err.code === 11000) {
+                                                            res.json({
+                                                                success: false,
+                                                                message: 'Username already exists'
+                                                            }); // Return error
+                                                        } else {
+                                                            // Check if error is a validation rror
+                                                            if (err.errors) {
+                                                                // Check if validation error is in the email field
+                                                                if (err.errors.email) {
+                                                                    res.json({
+                                                                        success: false,
+                                                                        message: err.errors.email.message
+                                                                    }); // Return error
+                                                                } else {
+                                                                    // Check if validation error is in the username field
+                                                                    if (err.errors.username) {
+                                                                        res.json({
+                                                                            success: false,
+                                                                            message: err.errors.username.message
+                                                                        }); // Return error
+                                                                    } else {
+                                                                        // Check if validation error is in the password field
+                                                                        if (err.errors.password) {
+                                                                            res.json({
+                                                                                success: false,
+                                                                                message: err.errors.password.message
+                                                                            }); // Return error
+                                                                        } else {
+                                                                            res.json({
+                                                                                success: false,
+                                                                                message: err
+                                                                            }); // Return any other error not already covered
+                                                                        }
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                res.json({
+                                                                    success: false,
+                                                                    message: 'Could not save user. Error: ',
+                                                                    err
+                                                                }); // Return error if not related to validation
+                                                            }
+                                                        }
+                                                    } else {
+                                                        res.json({
+                                                            success: true,
+                                                            message: 'Acount registered!'
+                                                        }); // Return success
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+
+
+    /* ===============================================================
+        Route to get user's profile data
+     =============================================================== */
+
+    router.get('/profileData/:id', (req, res) => {
+
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide an user s id'
+            }); // Return error
+        } else {
+
+            // Search for user in database
+            User.findOne({
+                _id: req.params.id
+            }).select('-password').exec((err, user) => {
+                // Check if error connecting
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
+                    // Check if user was found in database
+                    if (!user) {
+                        res.status(404).json({
+                            success: false,
+                            message: 'User not found'
+                        }); // Return error, user was not found in db
+                    } else {
+                        res.status(200).json({
+                            success: true,
+                            user: user
+                        }); // Return success, send user object to frontend for profile
+                    }
+                }
+            });
+        }
+    });
+
+
+    /* ===============================================================
+        Route to add class to student
+     =============================================================== */
+
+    router.put('/addClassToStudent/:id', (req, res) => {
+
+        //check if id was provided in the url
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide an user id'
+            }); // Return error
+        } else {
+            //Check if clas array was provided
+            if (!req.body.clas) {
+                res.status(206).json({
+                    success: false,
+                    message: 'Provide a class'
+                }); // Return error
+            } else {
+            //Find user in db
+            User.findOne({
+                _id:req.params.id
+            }).select('-password').exec((err,user)=>{
+                //CHeck for errors
+                if(err){
+                    
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                }else{
+                    //Check if user exists in db
+                    if(!user){
+                        res.status(404).json({
+                            success: false,
+                            message: 'User not found in db'
+                        }); // Return error
+                    }else{
+                        user.clas.year=parseInt(req.body.clas.year);
+                        user.clas.section=req.body.clas.section;
+                        //save user object
+                        user.save((err)=>{
+                            if(err){
+                                res.status(500).json({
+                                    success: false,
+                                    message: err
+                                }); // Return error
+                            }else{
+                                res.status(200).json({
+                                    success: false,
+                                    message: 'User updated!'
+                                }); // Return error
+                            }
+                        })
+                    }
+
+                }
+            })
+        }
     }
-  });
+    });
+
 
 
 

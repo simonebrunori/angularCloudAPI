@@ -313,9 +313,11 @@ let validYear = (year) => {
   if(!year){
     return false; //return error
   }else{
-    // Regular Expression to test if year is valid format
-    const regExp = new RegExp(/^([0-9])\w+/);
-    return regExp.test(year); // Return regular expression test result (true or false)
+    if(year>0 || year < 6){
+      return true;
+    }else{
+      return false;
+    }
   }
 }
 
@@ -355,9 +357,11 @@ let validSection = (section) => {
   if(!section){
     return false; //return error
   }else{
-    // Regular Expression to test if section is valid format
-    const regExp = new RegExp(/^([A-Z])\w+/);
-    return regExp.test(section); // Return regular expression test result (true or false)
+    if(section.localeCompare('A')>=0 || section.localeCompare('Z')<=0){
+      return true;
+    }else{
+      return false;
+    }
   }
 }
 
