@@ -15,8 +15,8 @@ module.exports = (router) => {
 
 
     /* ========
-  LOGIN ROUTE
-  ======== */
+      LOGIN ROUTE
+      ======== */
 
     router.post('/login', (req, res) => {
         // Check if username was provided
@@ -82,8 +82,8 @@ module.exports = (router) => {
     });
 
     /* ================================================
-  MIDDLEWARE - Used to grab user's token from headers
-  ================================================ */
+      MIDDLEWARE - Used to grab user's token from headers
+      ================================================ */
     router.use((req, res, next) => {
         const token = req.headers['authorization']; // Create token found in headers
         // Check if token was found in headers
@@ -692,8 +692,8 @@ module.exports = (router) => {
     });
 
     /* ===============================================================
-     Route to check if user's username is available for registration
-  =============================================================== */
+         Route to check if user's username is available for registration
+      =============================================================== */
     router.get('/checkUsername/:username', (req, res) => {
         // Check if username was provided in paramaters
         if (!req.params.username) {
@@ -731,8 +731,8 @@ module.exports = (router) => {
 
 
     /* ==============
-     Register Route
-  ============== */
+         Register Route
+      ============== */
     router.post('/register', (req, res) => {
         // Check if email was provided
         if (!req.body.email) {
@@ -949,47 +949,145 @@ module.exports = (router) => {
                     message: 'Provide a class'
                 }); // Return error
             } else {
+                //Find user in db
+                User.findOne({
+                    _id: req.params.id
+                }).select('-password').exec((err, user) => {
+                    //CHeck for errors
+                    if (err) {
+
+                        res.status(500).json({
+                            success: false,
+                            message: err
+                        }); // Return error
+                    } else {
+                        //Check if user exists in db
+                        if (!user) {
+                            res.status(404).json({
+                                success: false,
+                                message: 'User not found in db'
+                            }); // Return error
+                        } else {
+                            user.clas.year = parseInt(req.body.clas.year);
+                            user.clas.section = req.body.clas.section;
+                            //save user object
+                            user.save((err) => {
+                                if (err) {
+                                    res.status(500).json({
+                                        success: false,
+                                        message: err
+                                    }); // Return error
+                                } else {
+                                    res.status(200).json({
+                                        success: false,
+                                        message: 'User updated!'
+                                    }); // Return error
+                                }
+                            })
+                        }
+
+                    }
+                })
+            }
+        }
+    });
+
+
+    /* ===============================================================
+       Route to add class to teacher
+    =============================================================== */
+
+    router.put('/addClassToTeacher/:id', (req, res) => {
+
+        //check if id was provided in the url
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide an user id'
+            }); // Return error
+        } else {
+            //Check if classes array was provided
+            if (!req.body.classes) {
+                res.status(206).json({
+                    success: false,
+                    message: 'Provide a class'
+                }); // Return error
+            } else {
+                //Find user in db
+                User.findOne({
+                    _id: req.params.id
+                }).select('-password').exec((err, user) => {
+                    //CHeck for errors
+                    if (err) {
+
+                        res.status(500).json({
+                            success: false,
+                            message: err
+                        }); // Return error
+                    } else {
+                        //Check if user exists in db
+                        if (!user) {
+                            res.status(404).json({
+                                success: false,
+                                message: 'User not found in db'
+                            }); // Return error
+                        } else {
+                            user.classes = req.body.classes;
+                            //save user object
+                            user.save((err) => {
+                                if (err) {
+                                    res.status(500).json({
+                                        success: false,
+                                        message: err
+                                    }); // Return error
+                                } else {
+                                    res.status(200).json({
+                                        success: false,
+                                        message: 'User updated!'
+                                    }); // Return error
+                                }
+                            })
+                        }
+
+                    }
+                })
+            }
+        }
+    });
+
+
+    /* ===============================================================
+        Route to delete user
+     =============================================================== */
+
+    router.delete('/deleteUser/:id', (req, res) => {
+
+        //check if id was provided in the url
+        if (!req.params.id) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide an user id'
+            }); // Return error
+        } else {
             //Find user in db
-            User.findOne({
-                _id:req.params.id
-            }).select('-password').exec((err,user)=>{
-                //CHeck for errors
-                if(err){
-                    
+            User.deleteOne({
+                _id: req.params.id
+            }).exec((err) => {
+
+                if (err) {
                     res.status(500).json({
                         success: false,
                         message: err
                     }); // Return error
-                }else{
-                    //Check if user exists in db
-                    if(!user){
-                        res.status(404).json({
-                            success: false,
-                            message: 'User not found in db'
-                        }); // Return error
-                    }else{
-                        user.clas.year=parseInt(req.body.clas.year);
-                        user.clas.section=req.body.clas.section;
-                        //save user object
-                        user.save((err)=>{
-                            if(err){
-                                res.status(500).json({
-                                    success: false,
-                                    message: err
-                                }); // Return error
-                            }else{
-                                res.status(200).json({
-                                    success: false,
-                                    message: 'User updated!'
-                                }); // Return error
-                            }
-                        })
-                    }
-
+                } else {
+                    res.status(200).json({
+                        success: true,
+                        message: 'User deleted!'
+                    }); // Return error
                 }
+
             })
         }
-    }
     });
 
 

@@ -391,7 +391,7 @@ const userSchema = new Schema({
   type: {type: String, required:true, uppercase:true, validate: typeValidators},
   clas: { year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}},  //for students
   classes:[   //for teachers
-    {year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}} 
+    {year:{type: Number, validate: yearValidators}, section:{type:String, uppercase:true, validate:sectionValidators}, subject:{type:String}} 
   ],
   todos:[
     {
@@ -403,7 +403,6 @@ const userSchema = new Schema({
   birthDate:{type:Date},
   about:{type:String},
   major:{type:String},
-  subjects:{type:Array},
   TE:{type:Boolean},
   TODO:{type:Boolean}
 
