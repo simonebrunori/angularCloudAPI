@@ -191,7 +191,7 @@ let validNameChecker = (name) => {
     return false; // Return error
   } else {
     // Regular expression to test for a valid name
-    const regExp = new RegExp(/^[a-z ,.'-]+$/i);
+    const regExp = new RegExp(/[^A-Za-z]+/g);
     return regExp.test(name); // Return regular expression test results (true or false)
   }
 };
@@ -232,7 +232,7 @@ let validSurname = (surname) => {
     return false; // Return error
   } else {
     // Regular expression to test if surname format is valid
-    const regExp = new RegExp(/^[a-z ,.'-]+$/i);
+    const regExp = new RegExp(/[^A-Za-z]+/g);
     return regExp.test(surname); // Return regular expression test result (true or false)
   }
 };
@@ -404,7 +404,8 @@ const userSchema = new Schema({
   about:{type:String},
   major:{type:String},
   TE:{type:Boolean},
-  TODO:{type:Boolean}
+  TODO:{type:Boolean},
+  newUser:{type:Boolean, default:true}
 
 
 });

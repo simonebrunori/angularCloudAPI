@@ -1091,6 +1091,124 @@ module.exports = (router) => {
     });
 
 
+    /* ===============================================================
+        Route to compare old password with new
+     =============================================================== */
+
+     router.post('/comparePasswords', (req, res) => {
+
+        //check if password was provided 
+        if (!req.body.password) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide a password'
+            }); // Return error
+        } else {
+            //Find user in db
+            User.findOne({
+                _id: req.decoded.userId
+            }).exec((err,user)=>{
+                //Check for errors
+                if(err){
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                }else{
+                    //Check if user was found
+                    if(!user){
+                        res.status(404).json({
+                            success: false,
+                            message: 'User not found'
+                        }); // Return error
+                    }else{
+                        const validPassword = user.comparePassword(req.body.password); // Compare password provided to password in database
+                        if(validPassword){
+                            res.status(200).json({
+                                success: true,
+                                message: 'Passwords match'
+                            }); 
+                        }else{
+                            res.status(200).json({
+                                success: false,
+                                message: 'Password not match'
+                            }); 
+                        }
+                    }
+
+                }
+            })    
+        }
+    });
+
+
+
+     /* ===============================================================
+       Route to change password
+    =============================================================== */
+
+    router.put('/changePassword', (req, res) => {
+
+        //check if description was provided in the url
+        if (!req.body.about) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide a description'
+            }); // Return error
+        } else {
+            //Check if classes array was provided
+            if (!req.body.password) {
+                res.status(206).json({
+                    success: false,
+                    message: 'Provide a password'
+                }); // Return error
+            } else {
+                //Find user in db
+                User.findOne({
+                    _id: req.decoded.userId
+                }).exec((err, user) => {
+                    //CHeck for errors
+                    if (err) {
+
+                        res.status(500).json({
+                            success: false,
+                            message: err
+                        }); // Return error
+                    } else {
+                        //Check if user exists in db
+                        if (!user) {
+                            res.status(404).json({
+                                success: false,
+                                message: 'User not found in db'
+                            }); // Return error
+                        } else {
+                            console.log(user);
+                            user.password = req.body.password;
+                            user.about= req.body.about;
+                            user.newUser=false;
+                            //save user object
+                            user.save((err) => {
+                                if (err) {
+                                    res.status(500).json({
+                                        success: false,
+                                        message: err
+                                    }); // Return error
+                                } else {
+                                    res.status(200).json({
+                                        success: true,
+                                        message: 'Password changed!'
+                                    }); // Return error
+                                }
+                            })
+                        }
+
+                    }
+                })
+            }
+        }
+    });
+
+
 
 
 
