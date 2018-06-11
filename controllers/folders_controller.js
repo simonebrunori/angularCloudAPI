@@ -20,10 +20,10 @@ module.exports = (router) => {
         Route to get user's folders
      =============================================================== */
 
-    router.get('/Tfolders/:user', (req, res) => {
+    router.get('/Tfolders', (req, res) => {
         // Search for folder in database
         Folder.find({
-            createdBy: req.params.user,
+            createdBy: req.decoded.userId,
             parent: null
         }).select('name createdAt').exec((err, folder) => {
             // Check if error connecting
@@ -134,7 +134,7 @@ module.exports = (router) => {
         // Search for users in database
         Folder.findOne({
             "files.filename": req.params.file
-        }).select("users").exec((err, users) => {
+        }).select("clas").exec((err, clas) => {
             // Check if error connecting
             if (err) {
                 res.json({
@@ -142,17 +142,37 @@ module.exports = (router) => {
                     message: err
                 }); // Return error
             } else {
-                // Check if users were found in database
-                if (!users) {
+                // Check if clas were found in database
+                if (!clas) {
                     res.json({
                         success: false,
-                        message: 'Users not found'
-                    }); // Return error, users were not found in db
+                        message: 'clas not found'
+                    }); // Return error, clas were not found in db
                 } else {
-                    res.json({
-                        success: true,
-                        users: users
-                    }); // Return success, send users array to frontend 
+                    User.find({
+                        "clas.section": clas.clas.section,
+                        "clas.year": clas.clas.year
+                    }).select("name surname").exec((err, users) => {
+                        if (err) {
+                            res.json({
+                                success: false,
+                                message: err
+                            }); // Return error
+                        } else {
+                            if (!users) {
+                                res.json({
+                                    success: false,
+                                    message: 'Users not founded'
+                                }); // Return error
+                            } else {
+                                res.json({
+                                    success: true,
+                                    users: users
+                                }); // Return success, send users array to frontend 
+                            }
+                        }
+
+                    })
                 }
             }
         });
@@ -179,74 +199,61 @@ module.exports = (router) => {
                     message: 'Provide a name for the folder'
                 }); //return error
             } else {
-                //Check if creator was provided
-                if (!req.body.createdBy) {
+
+                if (!req.body.path) {
                     res.json({
                         success: false,
-                        message: 'Provide a creator'
+                        message: 'Provide a path'
                     }); //return error
                 } else {
 
-                    if (!req.body.path) {
+                    if (!req.body.parentName) {
                         res.json({
                             success: false,
-                            message: 'Provide a path'
+                            message: 'Provide a parentName'
                         }); //return error
                     } else {
-
-                        if (!req.body.parentName) {
-                            res.json({
-                                success: false,
-                                message: 'Provide a parentName'
-                            }); //return error
-                        } else {
-                            //Take the list of users of the parent directory. Users are the same in children directories
-                            Folder.findOne({
-                                _id: req.body.parent
-                            }).select("users").exec((err, users) => {
-                                //Check execution errors
-                                if (err) {
+                        //Take the list of users of the parent directory. Users are the same in children directories
+                        Folder.findOne({
+                            _id: req.body.parent
+                        }).select("users").exec((err, users) => {
+                            //Check execution errors
+                            if (err) {
+                                res.json({
+                                    success: false,
+                                    message: err
+                                }); // Return error
+                            } else {
+                                //Check if users were founded
+                                if (!users) {
                                     res.json({
                                         success: false,
-                                        message: err
-                                    }); // Return error
+                                        message: 'Users not found'
+                                    }); // Return error, users were not found in db
                                 } else {
-                                    //Check if users were founded
-                                    if (!users) {
-                                        res.json({
-                                            success: false,
-                                            message: 'Users not found'
-                                        }); // Return error, users were not found in db
-                                    } else {
 
-                                        //create folder model
-                                        const folder = new Folder({
-                                            name: req.body.name,
-                                            createdBy: req.body.createdBy,
-                                            users: users.users,
-                                            parent: req.body.parent,
-                                            folderPath: req.body.path + req.body.name + '/',
-                                            parentName: req.body.parentName
-                                        });
+                                    //create folder model
+                                    const folder = new Folder({
+                                        name: req.body.name,
+                                        createdBy: req.decoded.userId,
+                                        users: users.users,
+                                        parent: req.body.parent,
+                                        folderPath: req.body.path + req.body.name + '/',
+                                        parentName: req.body.parentName
+                                    });
 
-                                        //Save folder in the database
-                                        folder.save((err) => {
-                                            //Check executions errors
-                                            if (err) {
-                                                //Check custom errors
-                                                if (err.errors) {
-                                                    //Error of name validator
-                                                    if (err.errors.name) {
-                                                        res.json({
-                                                            success: false,
-                                                            message: err.errors.name.message
-                                                        }); // Return error message
-                                                    } else {
-                                                        res.json({
-                                                            success: false,
-                                                            message: err
-                                                        }); // Return generale error message
-                                                    }
+                                    //Save folder in the database
+                                    folder.save((err) => {
+                                        //Check executions errors
+                                        if (err) {
+                                            //Check custom errors
+                                            if (err.errors) {
+                                                //Error of name validator
+                                                if (err.errors.name) {
+                                                    res.json({
+                                                        success: false,
+                                                        message: err.errors.name.message
+                                                    }); // Return error message
                                                 } else {
                                                     res.json({
                                                         success: false,
@@ -255,18 +262,24 @@ module.exports = (router) => {
                                                 }
                                             } else {
                                                 res.json({
-                                                    success: true,
-                                                    message: "Folder created!"
-                                                }); // Return success message
+                                                    success: false,
+                                                    message: err
+                                                }); // Return generale error message
                                             }
-                                        })
-                                    }
+                                        } else {
+                                            res.json({
+                                                success: true,
+                                                message: "Folder created!"
+                                            }); // Return success message
+                                        }
+                                    })
                                 }
-                            })
-                        }
+                            }
+                        })
                     }
                 }
             }
+
         }
     });
 
@@ -559,8 +572,14 @@ module.exports = (router) => {
                                     }); // Return error message
                                 } else {
                                     //Remove file from folder
-                                    Folder.update({ _id: folder._id },{
-                                        $pull: {files:{_id:req.params.id}}
+                                    Folder.update({
+                                        _id: folder._id
+                                    }, {
+                                        $pull: {
+                                            files: {
+                                                _id: req.params.id
+                                            }
+                                        }
                                     }, (err) => {
                                         if (err) {
                                             res.json({
@@ -603,12 +622,25 @@ module.exports = (router) => {
         Get total files number
      =============================================================== */
 
-     router.get('/getFilesCount', (req, res) => {
+    router.get('/getFilesCount', (req, res) => {
         // Search for folders in database
-        Folder.aggregate([
-            { $project: { files: 1 }},
-            { $unwind: "$files" },
-            { $group: { _id: "result", count: { $sum: 1 }}}]).exec((err, files) => {
+        Folder.aggregate([{
+                $project: {
+                    files: 1
+                }
+            },
+            {
+                $unwind: "$files"
+            },
+            {
+                $group: {
+                    _id: "result",
+                    count: {
+                        $sum: 1
+                    }
+                }
+            }
+        ]).exec((err, files) => {
             // Check if error connecting
             if (err) {
                 res.json({
@@ -617,14 +649,159 @@ module.exports = (router) => {
                 }); // Return error
             } else {
 
-                    res.json({
-                        success: true,
-                        count: files
-                    }); // Return success
+                res.json({
+                    success: true,
+                    count: files
+                }); // Return success
 
             }
         });
     });
+
+
+    /* ===============================================================
+       Create class folder
+    =============================================================== */
+
+    router.post('/newFolderClass', (req, res) => {
+
+        //Check if author was provided
+        if (!req.body.createdBy) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide an author'
+            }); // Return error
+        } else {
+            //Check if class was provided
+            if (!req.body.clas) {
+                res.status(206).json({
+                    success: false,
+                    message: 'Provide a class object'
+                }); // Return error
+            } else {
+                const folder = new Folder({
+                    createdBy: req.body.createdBy,
+                    name: req.body.clas.subject + ' ' + req.body.clas.year + req.body.clas.section,
+                    folderPath: '/' + req.body.clas.subject + ' ' + req.body.clas.year + req.body.clas.section + '/',
+                    clas: req.body.clas
+                })
+
+                folder.save((err) => {
+                    if (err) {
+                        res.status(500).json({
+                            success: false,
+                            message: err
+                        }); // Return error
+                    } else {
+                        res.status(206).json({
+                            success: true,
+                            message: 'Folder created!'
+                        }); // Return success
+                    }
+                })
+            }
+        }
+
+    });
+
+
+    /* ===============================================================
+       Delete class folder
+    =============================================================== */
+
+    router.delete('/deleteFolder/:folderName', (req, res) => {
+
+        //Check if author was provided
+        if (!req.params.folderName) {
+            res.status(206).json({
+                success: false,
+                message: 'Provide a folder name'
+            }); // Return error
+        } else {
+
+
+            Folder.remove({
+                name: req.params.folderName
+            }, (err) => {
+                if (err) {
+                    res.status(500).json({
+                        success: false,
+                        message: err
+                    }); // Return error
+                } else {
+                    res.status(206).json({
+                        success: true,
+                        message: 'Folder removed!'
+                    }); // Return success
+                }
+            })
+        }
+
+    });
+
+
+
+    /* ===============================================================
+       Get class folder STUDENTS
+    =============================================================== */
+
+    router.get('/SFolder', (req, res) => {
+
+        //Find user infos
+
+        User.find({
+            _id: req.decoded.userId
+        }).select("clas").exec((err, clas) => {
+            //Check for errors
+            if (err) {
+                res.status(500).json({
+                    success: false,
+                    message: err
+                }); // Return error
+            } else {
+                //CHeck if clas was found in db
+                if (!clas) {
+                    res.status(404).json({
+                        success: false,
+                        message: 'User not found'
+                    }); // Return error
+                } else {
+                    //Find folder in db
+                    Folder.find({
+                        "clas.year": clas[0].clas.year,
+                        "clas.section": clas[0].clas.section
+                    }).select("name createdAt").exec((err, folders) => {
+                        //Check for errors
+                        if (err) {
+                            res.status(500).json({
+                                success: false,
+                                message: err
+                            }); // Return error
+                        } else {
+                            //CHeck if student was found in db
+                            if (!folders) {
+                                res.status(404).json({
+                                    success: false,
+                                    message: 'Folders not found'
+                                }); // Return error
+                            } else {
+                                res.status(200).json({
+                                    success: true,
+                                    folders: folders
+                                }); // Return success
+                            }
+
+                        }
+                    })
+
+                }
+            }
+        })
+
+    });
+
+
+
 
 
 

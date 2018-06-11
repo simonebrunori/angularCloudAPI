@@ -204,10 +204,10 @@ const nameValidators = [
     message: 'Name must be at least 5 characters but no more than 30'
   },
   // Second name Validator
-  {
-    validator: validNameChecker,
-    message: 'Must be a valid name'
-  }
+  // {
+  //   validator: validNameChecker,
+  //   message: 'Must be a valid name'
+  // }
 ];
 
 // Validate Function to check surname length
@@ -245,10 +245,10 @@ const surnameValidators = [
     message: 'Surname must be at least 5 characters but no more than 30'
   },
   // Second surname validator
-  {
-    validator: validSurname,
-    message: 'Surname must be a valid surname'
-  }
+  // {
+  //   validator: validSurname,
+  //   message: 'Surname must be a valid surname'
+  // }
 ];
 
 // Validate Function to check city length
