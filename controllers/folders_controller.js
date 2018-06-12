@@ -213,67 +213,45 @@ module.exports = (router) => {
                             message: 'Provide a parentName'
                         }); //return error
                     } else {
-                        //Take the list of users of the parent directory. Users are the same in children directories
-                        Folder.findOne({
-                            _id: req.body.parent
-                        }).select("users").exec((err, users) => {
-                            //Check execution errors
+
+                        //create folder model
+                        const folder = new Folder({
+                            name: req.body.name,
+                            createdBy: req.decoded.userId,
+                            parent: req.body.parent,
+                            folderPath: req.body.path + req.body.name + '/',
+                            parentName: req.body.parentName
+                        });
+
+                        //Save folder in the database
+                        folder.save((err) => {
+                            //Check executions errors
                             if (err) {
-                                res.json({
-                                    success: false,
-                                    message: err
-                                }); // Return error
-                            } else {
-                                //Check if users were founded
-                                if (!users) {
+                                //Check custom errors
+                                if (err.errors) {
+                                    //Error of name validator
+                                    if (err.errors.name) {
+                                        res.json({
+                                            success: false,
+                                            message: err.errors.name.message
+                                        }); // Return error message
+                                    } else {
+                                        res.json({
+                                            success: false,
+                                            message: err
+                                        }); // Return generale error message
+                                    }
+                                } else {
                                     res.json({
                                         success: false,
-                                        message: 'Users not found'
-                                    }); // Return error, users were not found in db
-                                } else {
-
-                                    //create folder model
-                                    const folder = new Folder({
-                                        name: req.body.name,
-                                        createdBy: req.decoded.userId,
-                                        users: users.users,
-                                        parent: req.body.parent,
-                                        folderPath: req.body.path + req.body.name + '/',
-                                        parentName: req.body.parentName
-                                    });
-
-                                    //Save folder in the database
-                                    folder.save((err) => {
-                                        //Check executions errors
-                                        if (err) {
-                                            //Check custom errors
-                                            if (err.errors) {
-                                                //Error of name validator
-                                                if (err.errors.name) {
-                                                    res.json({
-                                                        success: false,
-                                                        message: err.errors.name.message
-                                                    }); // Return error message
-                                                } else {
-                                                    res.json({
-                                                        success: false,
-                                                        message: err
-                                                    }); // Return generale error message
-                                                }
-                                            } else {
-                                                res.json({
-                                                    success: false,
-                                                    message: err
-                                                }); // Return generale error message
-                                            }
-                                        } else {
-                                            res.json({
-                                                success: true,
-                                                message: "Folder created!"
-                                            }); // Return success message
-                                        }
-                                    })
+                                        message: err
+                                    }); // Return generale error message
                                 }
+                            } else {
+                                res.json({
+                                    success: true,
+                                    message: "Folder created!"
+                                }); // Return success message
                             }
                         })
                     }

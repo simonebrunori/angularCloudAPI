@@ -964,7 +964,7 @@ module.exports = (router) => {
          =============================================================== */
 
 
-         router.get('/mailNewImportantCount', (req, res) => {
+        router.get('/mailNewImportantCount', (req, res) => {
                 Mail.find({
                         "sendees": {
                                 $elemMatch: {
@@ -977,7 +977,7 @@ module.exports = (router) => {
                                         }]
                                 }
                         },
-                        badge:"important"
+                        badge: "important"
                 }).count().exec((err, nMails) => {
                         if (err) {
                                 res.status(500).json({
@@ -994,12 +994,12 @@ module.exports = (router) => {
 
         });
 
-         /* ===============================================================
-            Route to get NEW COMMUNICATION email number
-         =============================================================== */
+        /* ===============================================================
+           Route to get NEW COMMUNICATION email number
+        =============================================================== */
 
 
-         router.get('/mailNewCommunicationCount', (req, res) => {
+        router.get('/mailNewCommunicationCount', (req, res) => {
                 Mail.find({
                         "sendees": {
                                 $elemMatch: {
@@ -1012,7 +1012,7 @@ module.exports = (router) => {
                                         }]
                                 }
                         },
-                        badge:"communication"
+                        badge: "communication"
                 }).count().exec((err, nMails) => {
                         if (err) {
                                 res.status(500).json({
@@ -1029,12 +1029,12 @@ module.exports = (router) => {
 
         });
 
-         /* ===============================================================
-            Route to get NEW HOMEWORK email number
-         =============================================================== */
+        /* ===============================================================
+           Route to get NEW HOMEWORK email number
+        =============================================================== */
 
 
-         router.get('/mailNewHomeworkCount', (req, res) => {
+        router.get('/mailNewHomeworkCount', (req, res) => {
                 Mail.find({
                         "sendees": {
                                 $elemMatch: {
@@ -1047,7 +1047,7 @@ module.exports = (router) => {
                                         }]
                                 }
                         },
-                        badge:"homework"
+                        badge: "homework"
                 }).count().exec((err, nMails) => {
                         if (err) {
                                 res.status(500).json({
@@ -1069,26 +1069,58 @@ module.exports = (router) => {
         Get total mails number
      =============================================================== */
 
-     router.get('/getTotalMailCount', (req, res) => {
-        // Search for folders in database
-        Mail.count().exec((err, mails) => {
-            // Check if error connecting
-            if (err) {
-                res.json({
-                    success: false,
-                    message: err
-                }); // Return error
-            } else {
+        router.get('/getTotalMailCount', (req, res) => {
+                // Search for folders in database
+                Mail.count().exec((err, mails) => {
+                        // Check if error connecting
+                        if (err) {
+                                res.json({
+                                        success: false,
+                                        message: err
+                                }); // Return error
+                        } else {
 
-                    res.json({
-                        success: true,
-                        count: mails
-                    }); // Return success
+                                res.json({
+                                        success: true,
+                                        count: mails
+                                }); // Return success
 
-            }
+                        }
+                });
         });
-    });
 
+
+        /* ===============================================================
+            Get Sendee name
+         =============================================================== */
+
+        router.get('/getSendeeName/:id', (req, res) => {
+                //Check if sendee id was provided
+                if (!req.params.id) {
+                        res.json({
+                                success: false,
+                                message: 'Provide sendee id'
+                        }); // Return error
+                } else {
+                        // Search for user in database
+                        User.find({_id:req.params.id}).select("username").exec((err, user) => {
+                                // Check if error connecting
+                                if (err) {
+                                        res.json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error
+                                } else {
+
+                                        res.json({
+                                                success: true,
+                                                sendee: user
+                                        }); // Return success
+
+                                }
+                        });
+                }
+        });
 
 
 
