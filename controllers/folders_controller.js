@@ -152,7 +152,7 @@ module.exports = (router) => {
                     User.find({
                         "clas.section": clas.clas.section,
                         "clas.year": clas.clas.year
-                    }).select("name surname").exec((err, users) => {
+                    }).select("username").exec((err, users) => {
                         if (err) {
                             res.json({
                                 success: false,

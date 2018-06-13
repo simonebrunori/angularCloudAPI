@@ -1103,7 +1103,9 @@ module.exports = (router) => {
                         }); // Return error
                 } else {
                         // Search for user in database
-                        User.find({_id:req.params.id}).select("username").exec((err, user) => {
+                        User.find({
+                                _id: req.params.id
+                        }).select("username").exec((err, user) => {
                                 // Check if error connecting
                                 if (err) {
                                         res.json({
@@ -1124,21 +1126,99 @@ module.exports = (router) => {
 
 
 
+        /* ===============================================================
+            Search mails by writer
+         =============================================================== */
+
+        router.get('/searchMail/:str/:limit/:skip', (req, res) => {
+                //Check if sendee id was provided
+
+                if (!req.params.str) {
+                        res.json({
+                                success: false,
+                                message: 'Provide search string'
+                        }); // Return error
+                } else {
+                        // var str = '/' + req.params.str + '/i';
+                        // console.log(str);
+
+                        Mail.find({
+                                writtenBy: {
+                                        "$regex": req.params.str
+                                },
+                                "sendees.sendee": req.decoded.userId
+
+                        }).limit(parseInt(req.params.limit)).skip(parseInt(req.params.skip)).sort({
+                                writtenAt: -1
+                        }).exec((err, mails) => {
+                                if (err) {
+                                        res.json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error
+                                } else {
+
+                                        if (!mails) {
+                                                res.json({
+                                                        success: false,
+                                                        message: 'No mails founded!'
+                                                }); // Return error
+                                        } else {
+                                                res.json({
+                                                        success: true,
+                                                        mails: mails
+                                                }); // Return success
+                                        }
+                                }
+                        })
+                }
+
+        });
 
 
 
 
+        /* ===============================================================
+            Search mails by writer count
+         =============================================================== */
+
+        router.get('/searchMailCount/:str', (req, res) => {
+                //Check if sendee id was provided
+
+                if (!req.params.str) {
+                        res.json({
+                                success: false,
+                                message: 'Provide search string'
+                        }); // Return error
+                } else {
+                        // var str = '/' + req.params.str + '/i';
+                        // console.log(str);
+
+                        Mail.find({
+                                writtenBy: {
+                                        "$regex": req.params.str
+                                },
+                                "sendees.sendee": req.decoded.userId
+
+                        }).count().exec((err, mails) => {
+                                if (err) {
+                                        res.json({
+                                                success: false,
+                                                message: err
+                                        }); // Return error
+                                } else {
 
 
+                                        res.json({
+                                                success: true,
+                                                count: mails
+                                        }); // Return success
 
+                                }
+                        })
+                }
 
-
-
-
-
-
-
-
+        });
 
 
 
